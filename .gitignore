@@ -1,0 +1,26 @@
+# Secrets
+kaggle.json
+~/.kaggle/
+wandb/
+*.wandb
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local artifacts pulled by the agent
+artifacts/
+*.log
+
+# Real pending state is fine to commit (small JSON), but allow ignoring if you want ephemeral:
+# state/pending_training.json

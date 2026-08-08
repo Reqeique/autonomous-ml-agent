@@ -1,0 +1,81 @@
+name: OpenCode ML Training Agent
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Custom prompt for the agent'
+        required: false
+        default: 'Use the ml-training-loop skill. Assess state, do design/tune if useful, push one Kaggle kernel if quotas allow and no pending training, then hand off. Or analyze if completion context present.'
+      max_iterations:
+        description: 'Max iterations this run'
+        required: false
+        default: '1'
+  repository_dispatch:
+    types: [kaggle-training-complete, ml-agent-trigger]
+
+permissions: {}
+
+jobs:
+  opencode-agent:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: write
+    concurrency:
+      group: opencode-ml-agent
+      cancel-in-progress: false
+    timeout-minutes: 50
+    env:
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Log runner IP
+        run: |
+          echo "Agent IP: $(curl -s --max-time 5 ifconfig.me || curl -s --max-time 5 ipinfo.io/ip || echo unknown)"
+          echo "Runner: $(hostname)"
+          echo "Time: $(date -u +%FT%TZ)"
+
+      - name: Pre-install tooling
+        run: |
+          python -m pip install --quiet --upgrade kaggle wandb
+          mkdir -p ~/.kaggle
+          printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+          kaggle --version
+
+      - name: Determine prompt
+        id: prompt
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PROMPT: ${{ github.event.inputs.prompt }}
+          PAYLOAD: ${{ toJson(github.event.client_payload) }}
+        run: |
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            PROMPT="Training-completion notification received. Payload: $PAYLOAD. Use the ml-training-loop skill. Analyze the completed/failed Kaggle kernel (pull status/output, download artifacts), pull W&B metrics via API, decide improvements, edit code, open a PR if valuable, clear pending state (state/pending_training.json) and close related 'training-pending' issues, then summarize with links and W&B run URL. Optionally prepare the next iteration (one push max per invocation). Be token-efficient; do not retrain without good reason."
+          else
+            PROMPT="${INPUT_PROMPT:-Use the ml-training-loop skill. Review state (state/pending_training.json and open 'training-pending' issues). If a training is pending, do not push another; just summarize status and exit. Otherwise, if Kaggle GPU quotas allow, perform a small design/hyperparam tweak, prepare + push exactly one Kaggle GPU kernel, write state/pending_training.json, and exit immediately for handoff. Respect free-tier quotas (T4, short runs, early stopping). Be autonomous, minimal, efficient.}"
+          fi
+          echo "prompt<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s' "$PROMPT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        with:
+          model: anthropic/claude-sonnet-4-5
+          prompt: ${{ steps.prompt.outputs.prompt }}
+          # share: true

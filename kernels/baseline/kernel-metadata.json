@@ -1,0 +1,14 @@
+{
+  "id": "youruser/your-kernel-slug",
+  "title": "Baseline training (ml-training-loop)",
+  "code_file": "train.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "accelerator": "nvidiaT4",
+  "keywords": ["ml", "baseline", "wandb"],
+  "dataset_sources": [],
+  "competition_sources": []
+}
