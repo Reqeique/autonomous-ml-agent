@@ -121,3 +121,9 @@ jobs:
         with:
           model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash-free' }}
           prompt: ${{ steps.prompt.outputs.prompt }}
+          # Workaround for anomalyco/opencode#37823: repos created after
+          # 2026-07-15 receive GitHub's new immutable OIDC subject claim
+          # format, which breaks the App-token exchange path inside
+          # `opencode github run` (owner/repo parsed wrong -> 404 -> "Failed
+          # to parse JSON"). Bypass OIDC and use GITHUB_TOKEN directly.
+          use_github_token: true
