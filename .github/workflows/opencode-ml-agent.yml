@@ -108,13 +108,15 @@ jobs:
           FALLBACK_MODEL: ${{ github.event.inputs.fallback_model }}
         run: |
           if [ "$EVENT_NAME" = "repository_dispatch" ]; then
-            PROMPT="Training-completion notification received. Payload: $PAYLOAD. Use the ml-training-loop skill. Analyze the completed/failed Kaggle kernel (pull status/output, download artifacts), pull W&B metrics via API, decide improvements, edit code, open a PR if valuable, clear pending state (state/pending_training.json) and close related 'training-pending' issues, then summarize with links and W&B run URL. Optionally prepare the next iteration (one push max per invocation). Be token-efficient; do not retrain without good reason. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL."
+            PAYLOAD_ONE=$(printf '%s' "$PAYLOAD" | tr -d '\n')
+            PROMPT="Training-completion notification received. Payload: $PAYLOAD_ONE. Use the ml-training-loop skill. Analyze the completed/failed Kaggle kernel (pull status/output, download artifacts), pull W&B metrics via API, decide improvements, edit code, open a PR if valuable, clear pending state (state/pending_training.json) and close related 'training-pending' issues, then summarize with links and W&B run URL. Optionally prepare the next iteration (one push max per invocation). Be token-efficient; do not retrain without good reason. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL."
           else
             PROMPT="${INPUT_PROMPT:-Use the ml-training-loop skill. Review state (state/pending_training.json and open 'training-pending' issues). If a training is pending, do not push another; just summarize status and exit. Otherwise, if Kaggle GPU quotas allow, perform a small design/hyperparam tweak, prepare + push exactly one Kaggle GPU kernel, write state/pending_training.json, and exit immediately for handoff. Respect free-tier quotas (T4, short runs, early stopping). Be autonomous, minimal, efficient. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL.}"
           fi
-          # Write prompt to a file then read it as a single output line.
+          # Write prompt to a file then emit it as a single GITHUB_OUTPUT line.
           printf '%s' "$PROMPT" > /tmp/prompt.txt
-          echo "prompt=$(cat /tmp/prompt.txt)" >> "$GITHUB_OUTPUT"
+          PROMPT_ONE=$(tr -d '\n' < /tmp/prompt.txt)
+          echo "prompt=$PROMPT_ONE" >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
