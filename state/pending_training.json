@@ -1,9 +1,9 @@
 {
-  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 4,
-  "iteration": 4,
-  "goal": "TPU v5e-8 + tensorflow-tpu install fix (image ships CPU-only TF, no ConfigureDistributedTPU op); verify TPU devices in kernel log and W&B run is logged",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "iter": 5,
+  "iteration": 5,
+  "goal": "TPU v5e-8: switch to Kaggle-staff TF recipe (uninstall ONLY jax; uv pip install tensorflow-tpu==2.18.0 from libtpu index). Iter 4 died at import tensorflow after pip-replacing libtpu/tensorflow/jaxlib mid-container. Verify TPU devices in kernel log + W&B run logged (run mode, no sweep).",
   "wandb_run": "",
-  "pushed_at": "2026-08-08T18:51:36Z"
+  "pushed_at": "2026-08-08T19:07:00Z"
 }
