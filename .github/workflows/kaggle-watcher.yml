@@ -33,8 +33,13 @@ jobs:
         run: |
           python -m pip install --quiet --upgrade kaggle
           mkdir -p ~/.kaggle
-          printf '{"username":"%s","key":"%s"}' "${{ secrets.KAGGLE_USERNAME }}" "${{ secrets.KAGGLE_KEY }}" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/kaggle.json
+          if [ -n "${{ secrets.KAGGLE_API_TOKEN }}" ]; then
+            printf '%s' "${{ secrets.KAGGLE_API_TOKEN }}" > ~/.kaggle/access_token
+            chmod 600 ~/.kaggle/access_token
+          else
+            printf '{"username":"%s","key":"%s"}' "${{ secrets.KAGGLE_USERNAME }}" "${{ secrets.KAGGLE_KEY }}" > ~/.kaggle/kaggle.json
+            chmod 600 ~/.kaggle/kaggle.json
+          fi
 
       - name: Inspect state and kernel status
         id: check

@@ -1,5 +1,5 @@
 {
-  "id": "youruser/your-kernel-slug",
+  "id": "ananiyajemberu/ml-playground-baseline",
   "title": "Baseline training (ml-training-loop)",
   "code_file": "train.ipynb",
   "language": "python",

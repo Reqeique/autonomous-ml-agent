@@ -51,10 +51,13 @@ git push origin main && git push private main   # both auth via gh → Reqeique
 ## Setup
 
 1. Add secrets on the **public** repo (Settings → Secrets and variables → Actions):
-   - `ANTHROPIC_API_KEY`
-   - `KAGGLE_USERNAME`, `KAGGLE_KEY`
-   - `WANDB_API_KEY`
-2. Edit `kernels/baseline/kernel-metadata.json` — set `id` to `<your-kaggle-username>/<slug>`.
+   - `OPENCODE_ZEN_API_KEY` — OpenCode Zen (free DeepSeek V4 Flash Free + paid models).
+   - `NIM_API_KEY` — NVIDIA NIM (covers `z-ai/glm-5.2` and `minimaxai/minimax-m3`).
+   - `WANDB_API_KEY` — W&B (also add as a Kaggle user secret for redundancy).
+   - `KAGGLE_API_TOKEN` — single-token auth, no username required.
+   - `KAGGLE_USERNAME` — only needed for `kernels/<x>/kernel-metadata.json` `id` paths.
+2. Edit `kernels/baseline/kernel-metadata.json` — `id` is already set to
+   `<your-kaggle-username>/<slug>`. Adjust the slug per experiment.
 3. Manually trigger the agent once to push the baseline:
    ```sh
    gh workflow run opencode-ml-agent.yml \
