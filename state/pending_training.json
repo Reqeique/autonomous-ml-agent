@@ -1,9 +1,9 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 4,
-  "iteration": 4,
-  "goal": "TPU v5e-8 + tensorflow-tpu install fix (image ships CPU-only TF, no ConfigureDistributedTPU op); verify TPU devices in kernel log and W&B run is logged",
+  "iter": 6,
+  "iteration": 6,
+  "goal": "Fix W&B entity mismatch (injected WANDB_ENTITY=ananiyajemberu21 invalid; real entity ananiyajemberu21-custom) by resolving entity via W&B API at runtime + passing entity=ENTITY explicitly; single verification run to confirm TPU (v8 proved 8 cores) AND a real W&B run with metrics",
   "wandb_run": "",
-  "pushed_at": "2026-08-08T18:51:36Z"
+  "pushed_at": "2026-08-08T19:30:00Z"
 }
