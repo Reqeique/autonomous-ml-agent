@@ -35,18 +35,27 @@ GitHub Actions minutes or LLM tokens.
   at runtime by the agent and committed).
 - `kernels/baseline/{train.ipynb,kernel-metadata.json}` — starter kernel.
 
+## Remotes (dual-repo setup)
+
+- **Public** (`origin`) → `https://github.com/Reqeique/autonomous-ml-agent` — where
+  Actions run (unlimited minutes).
+- **Private** (`private`) → `https://github.com/OrbeHQ/autonomous-ml-agent` —
+  mirror of the same tree, for private OpenCode config + experiment notes.
+
+```sh
+git remote add origin   https://github.com/Reqeique/autonomous-ml-agent.git  # public, Actions
+git remote add private https://github.com/OrbeHQ/autonomous-ml-agent.git    # private mirror
+git push origin main && git push private main
+```
+
 ## Setup
 
-1. Create the repo and push (already done if you're reading this on GitHub):
-   ```sh
-   gh repo create <owner>/<repo> --public --source=. --remote=origin --push
-   ```
-2. Add secrets (Settings → Secrets and variables → Actions):
+1. Add secrets on the **public** repo (Settings → Secrets and variables → Actions):
    - `ANTHROPIC_API_KEY`
    - `KAGGLE_USERNAME`, `KAGGLE_KEY`
    - `WANDB_API_KEY`
-3. Edit `kernels/baseline/kernel-metadata.json` — set `id` to `<your-kaggle-username>/<slug>`.
-4. Manually trigger the agent once to push the baseline:
+2. Edit `kernels/baseline/kernel-metadata.json` — set `id` to `<your-kaggle-username>/<slug>`.
+3. Manually trigger the agent once to push the baseline:
    ```sh
    gh workflow run opencode-ml-agent.yml \
      -f prompt="Use ml-training-loop. Push the baseline kernel in kernels/baseline, write state/pending_training.json, exit. Do not analyze."
