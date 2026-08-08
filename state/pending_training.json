@@ -1,0 +1,7 @@
+{
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "pushed_at": "2026-08-08T15:55:00Z",
+  "wandb_run": "",
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC); current best 3.493 BPC. Smoke test run #5: verify post-fix pipeline end-to-end (OIDC bypass, PR permissions, title slug, watcher key naming).",
+  "iteration": 0
+}
