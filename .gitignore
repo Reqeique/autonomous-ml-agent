@@ -1,4 +1,7 @@
 # Secrets
+.env
+.env.*
+!.env.example
 kaggle.json
 ~/.kaggle/
 wandb/

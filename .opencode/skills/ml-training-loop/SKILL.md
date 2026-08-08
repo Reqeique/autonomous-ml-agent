@@ -60,7 +60,30 @@ When invoked with completion context (workflow prompt mentions "Training-complet
 - State: prefer committing small JSON; fall back to GitHub Issue label `training-pending` if JSON not desired.
 - Logging helpers in this repo:
   - `scripts/check_kaggle_quotas.py` — best-effort, may need login.
+  - `scripts/test_keys.ps1` — pwsh, verifies W&B/Kaggle/NIM/Zen keys (masked output).
+  - `scripts/retrigger_with_fallback.sh` — when this run hits a primary-model rate limit, re-dispatch the agent with the fallback model.
   - `kernels/baseline/train.ipynb` — minimal starter notebook using `kaggle_secrets` for W&B key.
+
+## Model Chain (auto-tested via `scripts/test_keys.ps1`)
+
+Primary → fallback policy is encoded as workflow inputs and honored by the agent:
+
+| Order | Model (workflow `model:` input) | Provider | Notes |
+| --- | --- | --- | --- |
+| 1 (primary, free) | `opencode/deepseek-v4-flash-free` | OpenCode Zen | Free; data may be used to improve. |
+| 2 (paid fallback) | `nvidia/z-ai/glm-5.2` | NVIDIA NIM | Uses `NIM_API_KEY` → `NVIDIA_API_KEY`. |
+| 3 (last resort) | `nvidia/minimaxai/minimax-m3` | NVIDIA NIM | Same key as #2. |
+
+If the primary model rate-limits, the agent should re-dispatch itself:
+
+```sh
+gh workflow run opencode-ml-agent.yml \
+  -f prompt="Primary model rate-limited. Resume ml-training-loop work using the fallback model." \
+  -f model=nvidia/z-ai/glm-5.2 \
+  -f fallback_model=nvidia/minimaxai/minimax-m3
+```
+
+Or invoke `scripts/retrigger_with_fallback.sh "Primary rate-limited; resume ml-training-loop"`.
 
 ## Kernel Prep Checklist
 Before `kaggle kernels push`:
