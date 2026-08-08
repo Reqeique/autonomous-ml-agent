@@ -58,7 +58,10 @@ jobs:
       - name: Checkout public shell (workflows only)
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          # Persist GITHUB_TOKEN so the agent's final `git push -u origin`
+          # (branch setup) authenticates instead of dying with
+          # "could not read Username" (exit 128) after a successful run.
+          persist-credentials: true
 
       - name: Pull private tree
         run: |
