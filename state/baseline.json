@@ -1,0 +1,64 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (10M chars, byte vocab=256)",
+  "current_best": {
+    "val_loss_nats": 2.4216,
+    "val_bpc": 3.493,
+    "observed_at": "2025-09-08T18:10:41Z",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 10000000,
+      "val_frac": 0.1,
+      "d_model": 512,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 4,
+      "quantized_dim": 32,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 256,
+      "token_dec_layers": 2,
+      "compressor_causal": true,
+      "batch_size": 64,
+      "lr": 0.0012,
+      "weight_decay": 0.05,
+      "epochs": 5,
+      "patience": 3,
+      "warmup_steps": 400,
+      "acc": "TPU v3-8, mixed_bfloat16"
+    },
+    "best_epoch_reached": 3,
+    "early_stopped_or_crashed": "crashed",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "<see W&B run history via API>"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Determine why runs crash at epoch <=3 (probably 12h Kaggle session cap or TPU quota) — switch to checkpointing-resume and reduced epoch budget, or a smaller d_model to fit more epochs.",
+    "Try lr 1e-3 / weight_decay 0.01 with 12h checkpoint resume every epoch (avoid losing progress on crash).",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "If TPU quota is the bottleneck, port d_model=512 config to GPU (T4) with mixed precision + grad accumulation.",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}

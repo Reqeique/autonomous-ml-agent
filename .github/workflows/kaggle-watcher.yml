@@ -23,12 +23,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Log runner IP
-        run: |
-          echo "Watcher IP: $(curl -s --max-time 5 ifconfig.me || curl -s --max-time 5 ipinfo.io/ip || echo unknown)"
-          echo "Runner: $(hostname)"
-          echo "Time: $(date -u +%FT%TZ)"
-
       - name: Setup Kaggle
         run: |
           python -m pip install --quiet --upgrade kaggle
@@ -70,7 +64,9 @@ jobs:
           echo "pushed_at=$PUSHED_AT" >> "$GITHUB_OUTPUT"
           echo "--- kaggle kernels status ---"
           STATUS_OUTPUT=$(kaggle kernels status "$KERNEL" 2>&1 || true)
-          echo "$STATUS_OUTPUT"
+          # Don't echo full status to logs (public repo); log only the state word.
+          STATE_HINT=$(echo "$STATUS_OUTPUT" | tr -d '\n' | head -c 200)
+          echo "status: $STATE_HINT"
           echo "status_output<<EOF" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$STATUS_OUTPUT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"

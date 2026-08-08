@@ -47,19 +47,20 @@ jobs:
       KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
       KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # W&B context (kept out of README/AGENTS.md to avoid publishing personal
+      # usernames; edit these values here when changing sweep / project).
+      # SWEEP_ID is intentionally defaulted to '' — the agent / notebook create
+      # a fresh sweep on the first run, and the agent writes the resulting id
+      # back into state/pending_training.json for subsequent runs to continue.
+      WANDB_ENTITY: ${{ vars.WANDB_ENTITY }}
+      WANDB_PROJECT: ${{ vars.WANDB_PROJECT }}
+      WANDB_SWEEP_ID: ${{ vars.WANDB_SWEEP_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-
-      - name: Log runner IP
-        run: |
-          echo "Agent IP: $(curl -s --max-time 5 ifconfig.me || curl -s --max-time 5 ipinfo.io/ip || echo unknown)"
-          echo "Runner: $(hostname)"
-          echo "Time: $(date -u +%FT%TZ)"
 
       - name: Pre-install tooling
         run: |
@@ -68,13 +69,13 @@ jobs:
           # Kaggle CLI v2 picks up KAGGLE_API_TOKEN automatically. Falling back to the
           # legacy kaggle.json (KAGGLE_USERNAME + KAGGLE_KEY) is also supported.
           if [ -n "$KAGGLE_API_TOKEN" ]; then
-            printf '%s' "$KAGGLE_API_TOKEN" > ~/.kaggle/access_token
-            chmod 600 ~/.kaggle/access_token
+            printf '%s' "$KAGGLE_API_TOKEN" > ~/.kaggle/access_token 2>/dev/null || true
+            chmod 600 ~/.kaggle/access_token 2>/dev/null || true
           elif [ -n "$KAGGLE_USERNAME" ] && [ -n "$KAGGLE_KEY" ]; then
-            printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
-            chmod 600 ~/.kaggle/kaggle.json
+            printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json 2>/dev/null || true
+            chmod 600 ~/.kaggle/kaggle.json 2>/dev/null || true
           fi
-          python -m kaggle --version || true
+          python -m kaggle --version 2>/dev/null || true
 
       - name: Determine prompt
         id: prompt

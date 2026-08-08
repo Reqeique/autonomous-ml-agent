@@ -25,5 +25,8 @@ Thumbs.db
 artifacts/
 *.log
 
+# Firecrawl research dumps (local-only)
+.firecrawl/
+
 # Real pending state is fine to commit (small JSON), but allow ignoring if you want ephemeral:
 # state/pending_training.json

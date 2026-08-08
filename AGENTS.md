@@ -3,8 +3,40 @@
 This repo is designed to be driven by an LLM coding agent (OpenCode via
 `.github/workflows/opencode-ml-agent.yml`) but the same rules apply to a human.
 
+## Goal
+
+Reach SOTA **BPC (bits per character)** for autoregressive char-level text
+generation on enwik8 and text8, building on the user's prior
+`HierarchicalCharTransformer / PerPos AR` work.
+
+**Metric**: `BPC = avg_token_cross_entropy_in_nats / ln(2)`.
+Lower is better. SOTA ballpark: enwik8 ≤1.05 BPC, text8 ≤1.05 BPC.
+
+**Current baseline** (Sep 2025 sweep): val_loss=2.4216 nats → **BPC=3.493**
+on enwik8 (10M chars subset, val_frac=0.1). Every recent run crashed at
+epoch ≤3 — investigate first (probably Kaggle's 12h session cap, TPU quota,
+or OOM). See `state/baseline.json` for the full context the agent must read
+at startup, **before** deciding what to push next.
+
+## Where the work lives
+
+- `kernels/perpos-enwik8/{train.ipynb,kernel-metadata.json}` — canonical kernel:
+  TF/Keras TPU v3-8, byte-level UTF-8 vocab=257, transformer with
+  `ChunkCompressorEmbedding → InterpolatedFloatEmbedding → PerPos chunk
+  decoder + small token decoder`. The notebook reads W&B entity/project/sweep
+  from env vars (`WANDB_ENTITY`, `WANDB_PROJECT`, `WANDB_SWEEP_ID`); it carries
+  no hardcoded team/project/sweep strings.
+- `reference/shakespeare_pytorch_ref.ipynb` — small PyTorch dev loop on Tiny
+  Shakespeare. Used for cheap local architecture probes; **not** pushed to
+  Kaggle (its dataset is irrelevant to enwik8/text8).
+- `state/baseline.json` — goal + current best BPC + historical sweep
+  context (kept here as the agent's source of truth) + next iteration
+  directions. Read first.
+- See `README.md` for the full architecture (workflows, watcher, state).
+
 ## Read first
 
+- `state/baseline.json` — what's the current best and what's the next direction.
 - `.opencode/skills/ml-training-loop/SKILL.md` — the loop. State handoff rules
   there are non-negotiable; they exist to keep Actions minutes and tokens low.
 
