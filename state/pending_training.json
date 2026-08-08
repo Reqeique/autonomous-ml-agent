@@ -1,9 +1,9 @@
 {
-  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "iteration": 6,
+  "iter": 6,
+  "goal": "iter-6 scale-up after v11 hit val_bpc=3.011 @15ep (was 3.268@5ep, 3.493 baseline): d_model 512->768, chunk_dec 6->8L/ff512->1024, token_dec 64->128emb/2->3L, quantized_dim 128, epochs 20, warmup 500, patience 4. Loss still decreasing at ep15 and TPU was only ~8.5min/run -> high headroom.",
   "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "pushed_at": "2026-08-08T21:10:00Z"
 }
