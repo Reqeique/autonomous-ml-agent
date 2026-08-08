@@ -45,7 +45,13 @@ GitHub Actions minutes or LLM tokens.
 ```sh
 git remote add origin   https://github.com/Reqeique/autonomous-ml-agent.git  # public, Actions
 git remote add private https://github.com/OrbeHQ/autonomous-ml-agent.git    # private mirror
-git push origin main && git push private main
+git push origin main
+
+# Push to private requires the gh CLI to be on the OrbeHQ account
+# (gh credential helper tracks the active gh account, not per-remote).
+gh auth switch --user OrbeHQ >/dev/null
+git -c credential.helper='!gh auth git-credential' push private main
+gh auth switch --user Reqeique >/dev/null
 ```
 
 ## Setup
