@@ -102,26 +102,42 @@ jobs:
       - name: Trigger OpenCode agent on completion or failure
         if: steps.check.outputs.has_pending == 'true' && (steps.check.outputs.state == 'complete' || steps.check.outputs.state == 'failed')
         uses: actions/github-script@v7
+        env:
+          KERNEL: ${{ steps.check.outputs.kernel }}
+          STATE: ${{ steps.check.outputs.state }}
+          ITERATION: ${{ steps.check.outputs.iteration }}
+          GOAL: ${{ steps.check.outputs.goal }}
+          WANDB_RUN: ${{ steps.check.outputs.wandb_run }}
+          PUSHED_AT: ${{ steps.check.outputs.pushed_at }}
+          STATUS_OUTPUT: ${{ steps.check.outputs.status_output }}
         with:
           script: |
             const payload = {
-              kernel: '${{ steps.check.outputs.kernel }}',
-              state: '${{ steps.check.outputs.state }}',
-              iteration: Number('${{ steps.check.outputs.iteration }}' || 0),
-              goal: `${{ steps.check.outputs.goal }}`.replace(/\n/g, ' '),
-              wandb_run: '${{ steps.check.outputs.wandb_run }}',
-              pushed_at: '${{ steps.check.outputs.pushed_at }}',
-              status_output: `${{ steps.check.outputs.status_output }}`,
+              kernel: process.env.KERNEL,
+              state: process.env.STATE,
+              iteration: Number(process.env.ITERATION || 0),
+              goal: String(process.env.GOAL).replace(/\n/g, ' '),
+              wandb_run: process.env.WANDB_RUN,
+              pushed_at: process.env.PUSHED_AT,
+              status_output: String(process.env.STATUS_OUTPUT).replace(/\n/g, ' '),
               triggered_by: 'kaggle-watcher',
               timestamp: new Date().toISOString()
             };
-            await github.rest.repos.createDispatchEvent({
+            const prompt = `Training-completion notification received. Payload: ${JSON.stringify(payload)}. Use the ml-training-loop skill. Analyze the completed/failed Kaggle kernel (pull status/output, download artifacts), pull W&B metrics via API, decide improvements, edit code, open a PR if valuable, clear pending state (state/pending_training.json) and close related 'training-pending' issues, then summarize with links and W&B run URL. Optionally prepare the next iteration (one push max per invocation). Be token-efficient; do not retrain without good reason.`;
+            const inputs = {
+              prompt,
+              max_iterations: '1',
+              model: 'opencode/deepseek-v4-flash-free',
+              fallback_model: 'nvidia/z-ai/glm-5.2'
+            };
+            await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              event_type: 'kaggle-training-complete',
-              client_payload: payload
+              workflow_id: 'opencode-ml-agent.yml',
+              ref: 'main',
+              inputs
             });
-            console.log('Dispatched kaggle-training-complete');
+            console.log('Dispatched opencode-ml-agent.yml via workflow_dispatch');
 
       - name: Sync GitHub Issue state (optional)
         if: steps.check.outputs.has_pending == 'true' && (steps.check.outputs.state == 'complete' || steps.check.outputs.state == 'failed')
