@@ -1,9 +1,9 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 4,
-  "iteration": 4,
-  "goal": "TPU v5e-8 + tensorflow-tpu install fix (image ships CPU-only TF, no ConfigureDistributedTPU op); verify TPU devices in kernel log and W&B run is logged",
+  "iter": 5,
+  "iteration": 5,
+  "goal": "epochs 5->30 + cosine LR decay after warmup (decay_steps 11000); loss was still dropping at epoch 5 (val_bpc 3.268), expect improvement below 3.268",
   "wandb_run": "",
-  "pushed_at": "2026-08-08T18:51:36Z"
+  "pushed_at": "2026-08-08T19:47:00Z"
 }
