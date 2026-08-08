@@ -17,11 +17,32 @@ jobs:
     concurrency:
       group: kaggle-watcher
       cancel-in-progress: false
+    env:
+      PRIVATE_REPO_URL: https://github.com/Reqeique/autonomous-ml-agent-private.git
+      PRIVATE_REPO_BRANCH: main
     steps:
-      - name: Checkout
+      - name: Checkout public shell (workflows + state only)
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+
+      - name: Pull private tree
+        run: |
+          set -e
+          git clone --depth 1 --branch "$PRIVATE_REPO_BRANCH" \
+            "https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/Reqeique/autonomous-ml-agent-private.git" \
+            /tmp/private
+          cd /tmp/private
+          for item in $(ls -A1 | grep -v -E '^(\.git|\.github)$'); do
+            cp -r "$item" "$GITHUB_WORKSPACE/"
+          done
+          for dotfile in .opencode .agents AGENTS.md opencode.json; do
+            if [ -e "/tmp/private/$dotfile" ]; then
+              cp -r "/tmp/private/$dotfile" "$GITHUB_WORKSPACE/"
+            fi
+          done
+          cd "$GITHUB_WORKSPACE"
+          echo "Workspace ready."
 
       - name: Setup Kaggle
         run: |
@@ -64,7 +85,7 @@ jobs:
           echo "pushed_at=$PUSHED_AT" >> "$GITHUB_OUTPUT"
           echo "--- kaggle kernels status ---"
           STATUS_OUTPUT=$(kaggle kernels status "$KERNEL" 2>&1 || true)
-          # Don't echo full status to logs (public repo); log only the state word.
+          # Log a short status line only — full output may contain identifiers in a public repo.
           STATE_HINT=$(echo "$STATUS_OUTPUT" | tr -d '\n' | head -c 200)
           echo "status: $STATE_HINT"
           echo "status_output<<EOF" >> "$GITHUB_OUTPUT"

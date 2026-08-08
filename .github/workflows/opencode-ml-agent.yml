@@ -47,27 +47,48 @@ jobs:
       KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
       KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-      # W&B context (kept out of README/AGENTS.md to avoid publishing personal
-      # usernames; edit these values here when changing sweep / project).
-      # SWEEP_ID is intentionally defaulted to '' — the agent / notebook create
-      # a fresh sweep on the first run, and the agent writes the resulting id
-      # back into state/pending_training.json for subsequent runs to continue.
+      # W&B project context (kept out of the public repo; supplied via repository
+      # variables so personal usernames/sweeps aren't committed to public history).
       WANDB_ENTITY: ${{ vars.WANDB_ENTITY }}
       WANDB_PROJECT: ${{ vars.WANDB_PROJECT }}
       WANDB_SWEEP_ID: ${{ vars.WANDB_SWEEP_ID }}
+      # Private repo credentials for the runtime checkout.
+      PRIVATE_REPO_URL: https://github.com/Reqeique/autonomous-ml-agent-private.git
+      PRIVATE_REPO_BRANCH: main
     steps:
-      - name: Checkout
+      - name: Checkout public shell (workflows only)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           persist-credentials: false
+
+      - name: Pull private tree
+        run: |
+          set -e
+          mkdir -p /tmp/private
+          git clone --depth 1 --branch "$PRIVATE_REPO_BRANCH" \
+            "https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/Reqeique/autonomous-ml-agent-private.git" \
+            /tmp/private
+          # Overlay the private tree onto the workspace, keeping the public workflow YAMLs intact.
+          # Pull every path except the workflow directory (which is the public surface) and .git.
+          cd /tmp/private
+          for item in $(ls -A1 | grep -v -E '^(\.git|\.github)$'); do
+            cp -r "$item" "$GITHUB_WORKSPACE/"
+          done
+          # AGENTS.md, opencode.json, scripts, skills, kernels, state — all from private.
+          for dotfile in .opencode .agents AGENTS.md opencode.json; do
+            if [ -e "/tmp/private/$dotfile" ]; then
+              cp -r "/tmp/private/$dotfile" "$GITHUB_WORKSPACE/"
+            fi
+          done
+          cd "$GITHUB_WORKSPACE"
+          echo "Final workspace tree (top-level):"
+          ls -A
 
       - name: Pre-install tooling
         run: |
           python -m pip install --quiet --upgrade kaggle wandb
           mkdir -p ~/.kaggle
-          # Kaggle CLI v2 picks up KAGGLE_API_TOKEN automatically. Falling back to the
-          # legacy kaggle.json (KAGGLE_USERNAME + KAGGLE_KEY) is also supported.
+          # Kaggle CLI v2 picks up KAGGLE_API_TOKEN automatically.
           if [ -n "$KAGGLE_API_TOKEN" ]; then
             printf '%s' "$KAGGLE_API_TOKEN" > ~/.kaggle/access_token 2>/dev/null || true
             chmod 600 ~/.kaggle/access_token 2>/dev/null || true
@@ -91,13 +112,12 @@ jobs:
           else
             PROMPT="${INPUT_PROMPT:-Use the ml-training-loop skill. Review state (state/pending_training.json and open 'training-pending' issues). If a training is pending, do not push another; just summarize status and exit. Otherwise, if Kaggle GPU quotas allow, perform a small design/hyperparam tweak, prepare + push exactly one Kaggle GPU kernel, write state/pending_training.json, and exit immediately for handoff. Respect free-tier quotas (T4, short runs, early stopping). Be autonomous, minimal, efficient. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL.}"
           fi
-          echo "prompt<<EOF" >> "$GITHUB_OUTPUT"
-          printf '%s' "$PROMPT" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          # Write prompt to a file then read it as a single output line.
+          printf '%s' "$PROMPT" > /tmp/prompt.txt
+          echo "prompt=$(cat /tmp/prompt.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         with:
           model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash-free' }}
           prompt: ${{ steps.prompt.outputs.prompt }}
-          # share: true

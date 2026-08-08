@@ -1,7 +1,0 @@
-{
-  "kernel": "youruser/your-kernel-slug",
-  "pushed_at": "2026-08-08T03:00:00Z",
-  "wandb_run": "youruser/your-project/your-run-or-sweep-id",
-  "goal": "Example: improve val F1 by ≥1% over baseline with a tighter lr schedule",
-  "iteration": 0
-}
