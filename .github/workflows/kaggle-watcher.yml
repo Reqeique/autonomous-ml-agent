@@ -69,10 +69,10 @@ jobs:
             exit 0
           fi
           echo "has_pending=true" >> "$GITHUB_OUTPUT"
-          KERNEL=$(jq -r '.kernel // empty' "$PENDING_FILE")
-          ITER=$(jq -r '.iteration // 0' "$PENDING_FILE")
+          KERNEL=$(jq -r '.kernel // .kernel_slug // empty' "$PENDING_FILE")
+          ITER=$(jq -r '.iteration // .iter // 0' "$PENDING_FILE")
           GOAL=$(jq -r '.goal // ""' "$PENDING_FILE")
-          WANDB=$(jq -r '.wandb_run // ""' "$PENDING_FILE")
+          WANDB=$(jq -r '.wandb_run // empty' "$PENDING_FILE")
           PUSHED_AT=$(jq -r '.pushed_at // ""' "$PENDING_FILE")
           if [ -z "$KERNEL" ]; then
             echo "::error::pending_training.json missing 'kernel' field"
