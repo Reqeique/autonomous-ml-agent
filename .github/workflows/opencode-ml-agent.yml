@@ -127,3 +127,8 @@ jobs:
           # `opencode github run` (owner/repo parsed wrong -> 404 -> "Failed
           # to parse JSON"). Bypass OIDC and use GITHUB_TOKEN directly.
           use_github_token: true
+        env:
+          # In use_github_token mode, opencode reads the PAT from this env var.
+          # Without it, the action dies with "GITHUB_TOKEN environment variable
+          # is not set".  secrets.GITHUB_TOKEN is auto-provisioned by Actions.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
