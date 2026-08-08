@@ -3,7 +3,7 @@
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
   "iter": 2,
   "iteration": 2,
-  "goal": "TPU v5e-8 + mandatory W&B (injected); verify TPU devices in kernel log and W&B run is logged",
+  "goal": "TPU v5e-8 + mandatory W&B (injected); verify TPU devices in kernel log and W&B run is logged. v5 = fix for v4 crash: inject_wandb.py now emits self-contained 'import os' block (v4 died at In[1] NameError: name 'os' is not defined).",
   "wandb_run": "",
-  "pushed_at": "2026-08-08T17:49:00Z"
+  "pushed_at": "2026-08-08T18:02:00Z"
 }
