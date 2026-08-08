@@ -1,9 +1,9 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 1,
-  "iteration": 1,
-  "goal": "Fix crash signature: kernel died at In[1] RuntimeError (WANDB_PROJECT/WANDB_ENTITY not present in Kaggle kernel env). Now degrades to offline run mode; target val_bpc improvement over 3.493 and observe real crash signature if any.",
+  "iter": 2,
+  "iteration": 2,
+  "goal": "TPU v5e-8 + mandatory W&B (injected); verify TPU devices in kernel log and W&B run is logged",
   "wandb_run": "",
-  "pushed_at": "2026-08-08T16:42:00Z"
+  "pushed_at": "2026-08-08T17:49:00Z"
 }
