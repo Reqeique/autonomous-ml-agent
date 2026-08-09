@@ -85,7 +85,7 @@ jobs:
           echo "pushed_at=$PUSHED_AT" >> "$GITHUB_OUTPUT"
           echo "--- kaggle kernels status ---"
           STATUS_OUTPUT=$(kaggle kernels status "$KERNEL" 2>&1 || true)
-          # Log a short status line only — full output may contain identifiers in a public repo.
+          # Log a short status line only ΓÇö full output may contain identifiers in a public repo.
           STATE_HINT=$(echo "$STATUS_OUTPUT" | tr -d '\n' | head -c 200)
           echo "status: $STATE_HINT"
           echo "status_output<<EOF" >> "$GITHUB_OUTPUT"
@@ -123,7 +123,7 @@ jobs:
               triggered_by: 'kaggle-watcher',
               timestamp: new Date().toISOString()
             };
-            const prompt = `Training-completion notification received. Payload: ${JSON.stringify(payload)}. Use the ml-training-loop skill. Analyze the completed/failed Kaggle kernel (pull status/output, download artifacts), pull W&B metrics via API, decide improvements, edit code, open a PR if valuable, clear pending state (state/pending_training.json) and close related 'training-pending' issues, then summarize with links and W&B run URL. Optionally prepare the next iteration (one push max per invocation). Be token-efficient; do not retrain without good reason.`;
+            const prompt = `Training-completion notification received. Payload: ${JSON.stringify(payload)}. CRITICAL FIRST ACTION: invoke the skill tool with name "ml-training-loop" and follow its instructions exactly. Do not run any bash/python/grep/analysis commands until the skill is loaded and you have read it. Then, per the skill: Analyze the completed/failed Kaggle kernel (pull status/output, download artifacts), pull W&B metrics via API, decide improvements, edit code, open a PR if valuable, clear pending state (state/pending_training.json) and close related 'training-pending' issues, then summarize with links and W&B run URL. Optionally prepare the next iteration (one push max per invocation). Be token-efficient; do not retrain without good reason.`;
             const inputs = {
               prompt,
               max_iterations: '1',

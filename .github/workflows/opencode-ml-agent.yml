@@ -107,7 +107,7 @@ jobs:
           MODEL: ${{ github.event.inputs.model }}
           FALLBACK_MODEL: ${{ github.event.inputs.fallback_model }}
         run: |
-          PROMPT="${INPUT_PROMPT:-Use the ml-training-loop skill. Review state (state/pending_training.json and open 'training-pending' issues). If a training is pending, do not push another; just summarize status and exit. Otherwise, if Kaggle GPU quotas allow, perform a small design/hyperparam tweak, prepare + push exactly one Kaggle GPU kernel, write state/pending_training.json, and exit immediately for handoff. Respect free-tier quotas (T4, short runs, early stopping). Be autonomous, minimal, efficient. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL.}"
+          PROMPT="${INPUT_PROMPT:-CRITICAL FIRST ACTION: invoke the skill tool with name \"ml-training-loop\" and follow its instructions exactly. Do not run any bash/python/grep/analysis commands until the skill is loaded and you have read it. Then use the ml-training-loop skill. Review state (state/pending_training.json and open 'training-pending' issues). If a training is pending, do not push another; just summarize status and exit. Otherwise, if Kaggle GPU quotas allow, perform a small design/hyperparam tweak, prepare + push exactly one Kaggle GPU kernel, write state/pending_training.json, and exit immediately for handoff. Respect free-tier quotas (T4, short runs, early stopping). Be autonomous, minimal, efficient. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL.}"
           # Write prompt to a file then emit it as a single GITHUB_OUTPUT line.
           printf '%s' "$PROMPT" > /tmp/prompt.txt
           PROMPT_ONE=$(tr -d '\n' < /tmp/prompt.txt)
@@ -129,3 +129,18 @@ jobs:
           # Without it, the action dies with "GITHUB_TOKEN environment variable
           # is not set".  secrets.GITHUB_TOKEN is auto-provisioned by Actions.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify skill was loaded
+        if: always() && steps.prompt.outputs.prompt != ''
+        run: |
+          echo "Searching opencode storage for evidence the ml-training-loop skill was loaded..."
+          # Grep for a phrase that ONLY appears in the skill body (the prompt itself
+          # already mentions 'ml-training-loop', so that string would false-positive).
+          HITS=$(grep -ril "Efficient Handoff Workflow" ~/.local/share/opencode/storage 2>/dev/null | head -5)
+          if [ -n "$HITS" ]; then
+            echo "Skill usage confirmed in:"
+            echo "$HITS"
+          else
+            echo "::error::ml-training-loop skill was NOT loaded during this run (no skill-body evidence in opencode storage)."
+            exit 1
+          fi
