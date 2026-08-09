@@ -1,0 +1,78 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (10M chars, byte vocab=256)",
+  "current_best": {
+    "val_loss_nats": 1.307888,
+    "val_bpc": 1.8868836,
+    "observed_at": "2026-08-09T07:26:00Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/fo7dgnau (northern-shadow-12)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 3,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 256,
+      "token_local_window": 128,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay (fixes iter-4 OperatorNotAllowedInGraphError)",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 500,
+      "clip_grad": 1.0,
+      "logit_softcap": 15,
+      "relu_squared_ff": true,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs, no early stop)",
+    "notes": "Iteration 8 (kernel v16) doubled context (block_size 256->512, token_local_window 64->128) AND scaled data 10M->30M chars. Clean 40/40 TPU run (~58 min), val_bpc 1.8869 @ E40 — big new best. Gain vs iter-7 (-0.4009 BPC) is confounded between context doubling and data scaling; context was the primary lever per plan. Tail still slowly improving (E37->E40: 1.8901 -> 1.8869) so flattening but not saturated. Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 (d768/E20) -> 2.3023 (d768/E40) -> 2.2878 (d1024/E40) -> 1.8869 (d1024/ctx512/30M/E40).",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/t6583bet"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-9 (in flight): context doubling round 2 — block_size 512->1024, stride 256->512, token_local_window 128->256, keep d_model=1024 / 30M chars / 40 epochs. Context scaling validated (iter-8: 256->512 + data gave -0.40 BPC); the hypothesis says another doubling should give further gains. Estimated runtime ~1.5-2h (steps/epoch halve, per-step cost ~4x for chunk-chunk attention). Watch HBM (16GiB/chip) at block 1024.",
+    "If context 1024 helps, the remaining big lever is joint context+capacity (d_model 1024->1536, chunk_dec_layers 8->12) via the online W&B sweep (RUN_MODE=sweep_online_single_agent).",
+    "Data scaling (10M->30M) was confounded with context in iter-8; isolate it: an apples-to-apples 30M/ctx512 vs 10M/ctx512 comparison would quantify the data contribution.",
+    "Re-enable the online W&B sweep over d_model/chunk_dec_layers/lr once the context experiment is green.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress (kernel reruns can resume from the last checkpoint).",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
