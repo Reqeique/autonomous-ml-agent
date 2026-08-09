@@ -1,0 +1,79 @@
+name: Zen Probe
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    env:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_ZEN_API_KEY }}
+    steps:
+      - name: 1 - Install opencode (same as agent workflow)
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          export PATH="$HOME/.opencode/bin:$PATH"
+          opencode --version
+
+      - name: 2 - Direct Zen API call (non-streaming) with runner secret key
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          KEY="$OPENCODE_API_KEY"
+          echo "key present: $([ -n "$KEY" ] && echo yes || echo no), len=${#KEY}"
+          START=$(date +%s)
+          CODE=$(curl -sS -o /tmp/zen_resp.json -w '%{http_code}' --max-time 60 \
+            -X POST https://opencode.ai/zen/v1/chat/completions \
+            -H "Authorization: Bearer $KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"model":"deepseek-v4-flash-free","messages":[{"role":"user","content":"Say OK"}],"max_tokens":16}')
+          END=$(date +%s)
+          echo "HTTP_CODE=$CODE TIME=$((END-START))s"
+          head -c 400 /tmp/zen_resp.json
+          echo
+
+      - name: 3 - Direct Zen API call (streaming) with runner secret key
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          KEY="$OPENCODE_API_KEY"
+          echo "--- streaming test (max 90s) ---"
+          timeout 90 bash -c '
+            START=$(date +%s%N)
+            curl -sS -N --max-time 85 \
+              -X POST https://opencode.ai/zen/v1/chat/completions \
+              -H "Authorization: Bearer $KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"model\":\"deepseek-v4-flash-free\",\"messages\":[{\"role\":\"user\",\"content\":\"Say OK\"}],\"stream\":true,\"max_tokens\":16}" \
+              | while IFS= read -r line; do
+                  END=$(date +%s%N)
+                  MS=$(( (END - START) / 1000000 ))
+                  echo "[first_chunk_at=${MS}ms] $line" | head -c 300
+                  echo
+                  break
+                done
+          ' || echo "STREAM_TIMEOUT_OR_FAIL rc=$?"
+
+      - name: 4 - opencode run headless with free model (60s budget)
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          echo "--- opencode run --model opencode/deepseek-v4-flash-free ---"
+          START=$(date +%s)
+          timeout 60 opencode run --print-logs --model opencode/deepseek-v4-flash-free "reply with exactly: OK" 2>&1 | tail -c 800
+          RC=$?
+          END=$(date +%s)
+          echo
+          echo "RC=$RC TIME=$((END-START))s"
+
+      - name: 5 - Same but with NIM glm-5.2 for contrast
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NIM_API_KEY }}
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          echo "--- opencode run --model nvidia/z-ai/glm-5.2 ---"
+          START=$(date +%s)
+          timeout 60 opencode run --print-logs --model nvidia/z-ai/glm-5.2 "reply with exactly: OK" 2>&1 | tail -c 800
+          RC=$?
+          END=$(date +%s)
+          echo
+          echo "RC=$RC TIME=$((END-START))s"
