@@ -153,9 +153,11 @@ jobs:
             # Kill the attempt when opencode is stuck, three ways:
             #  1) 429 loop: >=5 new "Too Many Requests" lines within a ~100s window
             #  2) stall: no new log bytes for 90s while the process is alive
-            #  3) cap: hard per-model limit (4 min) so the chain progresses fast
-            # Healthy runs emit model output within ~60s, so 4 min is generous.
-            local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest
+            #  3) cap: free-tier primaries can sit silent for minutes before their
+            #     stream opens (TTFB up to ~200s on big prompts), so the cap clock
+            #     starts when the primary stream opens (480s), with a 300s wall cap
+            #     for streams that never open.
+            local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest stream_start=0
             while kill -0 "$pid" 2>/dev/null; do
               sleep 4
               now=$(date +%s)
@@ -163,6 +165,15 @@ jobs:
               if [ "$bytes_now" -ne "$bytes_prev" ]; then
                 bytes_prev=$bytes_now
                 last_change=$now
+              fi
+              # The free-tier primary (e.g. deepseek-v4-flash-free) can sit silent
+              # for minutes before its stream opens (TTFB observed 27s-200s on big
+              # prompts). So the cap clock starts when the primary stream actually
+              # opens (log line "message=stream ... mode=primary"), not at attempt
+              # start; a hard wall cap still bounds setup-only hangs.
+              if [ "$stream_start" -eq 0 ] && grep -q "mode=primary" "$log" 2>/dev/null; then
+                stream_start=$now
+                echo "=== primary stream opened on $model (${stream_start}s after attempt start); starting cap clock ==="
               fi
               n429=$(grep -c "Too Many Requests" "$log" 2>/dev/null || true)
               n429=${n429:-0}
@@ -188,8 +199,15 @@ jobs:
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ $((now - start)) -ge 240 ]; then
-                echo "=== per-model cap (240s) reached on $model; killing attempt ==="
+              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 480 ]; then
+                echo "=== per-model cap (480s after stream opened) reached on $model; killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+              if [ "$stream_start" -eq 0 ] && [ $((now - start)) -ge 300 ]; then
+                echo "=== no primary stream within 300s of attempt start on $model; killing attempt ==="
                 tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
