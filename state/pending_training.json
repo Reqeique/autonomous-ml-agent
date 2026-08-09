@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 20,
+  "iteration": 20,
+  "goal": "Iter-20 (v28): BUDGET RE-LOCK. iter-19/v27 at 10M/384 FAILED to converge (2.2631 BPC @ 40ep, ~12x fewer optimizer steps vs 43.7k). Restoring the known-converging 30M chars / bs96 budget (which produced new best 1.87799 via QK-norm in v26) ON the v27 optimized pipeline (vectorized ds, spe16, warmup 150, TimingCallback). Target: same-or-better BPC (<1.87799) at faster wall-clock than ~58.7 min.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-09T22:00:00Z",
+  "kernel_version": 28
 }
