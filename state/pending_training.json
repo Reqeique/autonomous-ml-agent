@@ -5,6 +5,6 @@
   "iteration": 21,
   "goal": "Iter-21 (v29): at RE-LOCKED 30M/96 budget, ARCHITECTURE probe on the char-level token decoder (token_dec_layers 3->4, token_emb_dim 128->192, token_dec_dim_ff 256->384, token_dec_nhead 4->6). v28 validated 1.8759 BPC @ 1600s (~2.2x faster). Target: <1.8759 BPC at same-or-better time-to-convergence.",
   "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
-  "pushed_at": "2026-08-09T21:45:00Z",
+  "pushed_at": "2026-08-09T20:10:00Z",
   "kernel_version": 29
 }
