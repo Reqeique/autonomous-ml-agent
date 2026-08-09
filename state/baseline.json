@@ -45,7 +45,7 @@
     "best_epoch_reached": 40,
     "early_stopped_or_crashed": "no (completed 40/40 epochs)",
     "time_to_convergence": "~58.7 min (3524s) to 1.8833 BPC @ E40 at locked 30M/512/40ep budget",
-    "notes": "Iter-15 (kernel v23) = window-warmup run. New best 1.8833 BPC. Iter-16 (v24, bigram-hash embedding rec 62) REGRESSED to 1.9049 BPC (hzyupupg, hopeful-tree-15, 3507s) — bigram disabled again in v25. Locked budget 30M chars / block 512 / 40ep / bs96 is the minimal converging budget found so far (~59 min). Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 (d1024/40ep, bs256) -> 2.2597 (bs512@10M) -> 1.8869 (30M chars, bs512) -> 1.8833 (window-warmup) -> [1.9049 bigram regression].",
+    "notes": "Iter-15 (kernel v23) = window-warmup run. New best 1.8833 BPC. Iter-16 (v24, bigram-hash embedding rec 62) REGRESSED to 1.9049 BPC (hzyupupg, hopeful-tree-15, 3507s) — bigram disabled again in v25. Iter-17 (v25, chunk QK-norm rec 5) ERRORED at build time: QKNormAttention multiplied 4D logits [B*K,H,N,N] by 3D mask [B*K,N,N] (missing head-dim broadcast) — training never started (run kapdvdg0). Iter-18 (v26) fixes the mask broadcast (m->[B*K,1,N,N]) and re-runs the QK-norm architecture. Locked budget 30M chars / block 512 / 40ep / bs96 is the minimal converging budget found so far (~59 min). Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 (d1024/40ep, bs256) -> 2.2597 (bs512@10M) -> 1.8869 (30M chars, bs512) -> 1.8833 (window-warmup) -> [1.9049 bigram regression] -> [v25 QK-norm build ERROR].",
     "historical_source": {
       "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
       "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
@@ -71,8 +71,7 @@
     "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
   },
   "next_iteration_directions": [
-    "Iter-17 (in flight): revert bigram-hash (it regressed 1.8833->1.9049 in iter-16) and add QK-norm (LayerNorm on Q/K, modded-nanogpt rec 5) to the chunk-level attention — the chunk decoder now runs 128 chunk positions at block 512, and QK-norm stabilizes attention logits at longer context. Budget locked at 30M/512/40ep. Target <1.88 BPC.",
-    "If QK-norm helps, apply it to the token-level decoder too, or sweep the window-warmup shape (start=16 vs 32, warmup epochs 8/12/16).",
+    "Iter-18 (in flight): fixed QK-norm mask broadcast bug from iter-17's build error and re-pushed (v26). If QK-norm lands green and helps, apply it to the token-level decoder too, or sweep the window-warmup shape (start=16 vs 32, warmup epochs 8/12/16).",
     "Re-enable the online W&B sweep over d_model/chunk_dec_layers/lr once QK-norm is green.",
     "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
     "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",

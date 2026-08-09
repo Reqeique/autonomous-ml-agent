@@ -1,10 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 17,
-  "iteration": 17,
-  "goal": "Iter-16 (v24, bigram-hash rec 62) REGRESSED 1.8833->1.9049 BPC, so bigram is disabled again. Iter-17 adds QK-norm (LayerNorm on Q/K, modded-nanogpt rec 5) to the chunk-level attention (128 chunk positions at block 512). Budget locked: 30M chars / block 512 / 40ep / bs96. Target <1.88 BPC.",
+  "iter": 18,
+  "iteration": 18,
+  "goal": "Iter-17 (v25, chunk QK-norm rec 5) ERRORED at build: QKNormAttention multiplied 4D logits [B*K,H,N,N] by 3D mask [B*K,N,N] (missing head-dim broadcast). Fixed: mask->[B*K,1,N,N]. Iter-18 (v26) re-runs the same QK-norm architecture + ReLU2 + softcap=15, bigram off, locked budget 30M chars / block 512 / 40ep / bs96 (~59 min). Target <1.88 BPC.",
   "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
-  "pushed_at": "2026-08-09T17:05:00Z",
-  "kernel_version": 25
+  "pushed_at": "2026-08-09T18:00:00Z",
+  "kernel_version": 26
 }
