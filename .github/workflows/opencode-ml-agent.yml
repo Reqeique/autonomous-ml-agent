@@ -175,7 +175,20 @@ jobs:
                 stream_start=$now
                 echo "=== primary stream opened on $model (${stream_start}s after attempt start); starting cap clock ==="
               fi
-              n429=$(grep -c "Too Many Requests" "$log" 2>/dev/null || true)
+              # Count 429s for THIS model's provider only. Title generation uses
+              # small_model which may live on a different provider (e.g. NIM), so a
+              # blanket "Too Many Requests" grep would falsely kill a Zen-primary
+              # attempt when NIM (title-gen) is rate-limited.
+              case "$model" in
+                opencode/*) host_frag="opencode.ai" ;;
+                nvidia/*) host_frag="integrate.api.nvidia.com" ;;
+                *) host_frag="" ;;
+              esac
+              if [ -n "$host_frag" ]; then
+                n429=$(grep -c "url: \"https://$host_frag" "$log" 2>/dev/null || true)
+              else
+                n429=$(grep -c "Too Many Requests" "$log" 2>/dev/null || true)
+              fi
               n429=${n429:-0}
               # Ring buffer of cumulative 429 counts (25 ticks ~= 100s window).
               cums+=("$n429")
