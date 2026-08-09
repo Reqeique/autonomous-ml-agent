@@ -1,0 +1,74 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (10M chars, byte vocab=256)",
+  "current_best": {
+    "val_loss_nats": 1.3079,
+    "val_bpc": 1.8869,
+    "observed_at": "2026-08-09T06:54:13Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/fo7dgnau (northern-shadow-12)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 3,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 256,
+      "token_local_window": 128,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 500,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "notes": "Iter-12 (30M chars, block 512, tlw 128) landed 1.8869 BPC @ E40 - new best. Data 10M->30M was the big lever (-0.37 BPC vs 10M@block512). Context doubling to 1024 REGRESSED: at 30M chars block1024->1.9812 (iter-13 p9dhom2n), at 10M chars block1024->2.5418 (iter-9 mn2p267h). So 512/stride256 is the converged context budget. Progression: 2.2878 -> 2.2597 (512/10M) -> 1.8869 (512/30M). Next: architecture tweaks on the locked 30M/512 budget.",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers are opaque labels in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/fo7dgnau"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-14 (next): LOCK the converging budget at 30M chars / block 512 / stride 256 / tlw 128 / 40 epochs (best=1.8869). Add ARCHITECTURE tweaks from modded-nanogpt: ReLU^2 MLP in chunk+token decoder blocks, logit softcap=15 on the token head. Context 1024 is a proven regression - do not push block_size above 512 without a real efficiency argument.",
+    "After ReLU^2+softcap is green at locked budget, try QK-norm + untied embed/head, then Muon optimizer on 2D chunk-decoder weights (Newton-Schulz-5, BF16) with Muon-specific LR ~2-4x AdamW peak.",
+    "Consider gated value-skip from compressor output to chunk-decoder output (record-55-style U-net), which compounds with the hierarchical PerPos structure.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
