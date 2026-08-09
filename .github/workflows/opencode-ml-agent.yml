@@ -150,27 +150,43 @@ jobs:
             echo "=== [opencode] attempt with model=$model ==="
             MODEL="$model" opencode github run > "$log" 2>&1 &
             local pid=$!
-            # Sliding window of new-429 counts per 4s tick (24 ticks = ~96s).
-            # opencode retries a 429 with exponential backoff (2s..256s), so a
-            # rate-limited model emits a slow trickle of "Too Many Requests"
-            # lines; a healthy model emits ~none. Kill when >=5 failures land
-            # inside a ~96s window.
-            local counts=() tick=0 new_lines n429 total c rc
+            # Kill the attempt when opencode is stuck, three ways:
+            #  1) 429 loop: >=5 new "Too Many Requests" lines within a ~96s window
+            #  2) stall: no new log bytes for 120s while the process is alive
+            #  3) cap: hard per-model limit (10 min) so the chain always progresses
+            local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest
             while kill -0 "$pid" 2>/dev/null; do
               sleep 4
-              new_lines=$(($(wc -l < "$log" 2>/dev/null || echo 0) - tick))
-              tick=$(wc -l < "$log" 2>/dev/null || echo 0)
-              n429=$(tail -n "$new_lines" "$log" 2>/dev/null | grep -c "Too Many Requests" || true)
-              counts+=("${n429:-0}")
-              if [ "${#counts[@]}" -gt 24 ]; then
-                counts=("${counts[@]:1}")
+              now=$(date +%s)
+              bytes_now=$(wc -c < "$log" 2>/dev/null || echo 0)
+              if [ "$bytes_now" -ne "$bytes_prev" ]; then
+                bytes_prev=$bytes_now
+                last_change=$now
               fi
-              total=0
-              for c in "${counts[@]}"; do
-                total=$((total + c))
-              done
-              if [ "$total" -ge 5 ]; then
-                echo "=== rate-limit loop detected on $model (>=5 429s in ~96s window); killing attempt ==="
+              n429=$(grep -c "Too Many Requests" "$log" 2>/dev/null || true)
+              n429=${n429:-0}
+              # Ring buffer of cumulative 429 counts (25 ticks ~= 100s window).
+              cums+=("$n429")
+              if [ "${#cums[@]}" -gt 25 ]; then
+                oldest=${cums[0]}
+                cums=("${cums[@]:1}")
+              else
+                oldest=${cums[0]:-0}
+              fi
+              if [ $((n429 - oldest)) -ge 5 ]; then
+                echo "=== rate-limit loop detected on $model (>=5 new 429s in ~100s); killing attempt ==="
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+              if [ $((now - last_change)) -ge 120 ]; then
+                echo "=== stall detected on $model (no output for 120s); killing attempt ==="
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+              if [ $((now - start)) -ge 600 ]; then
+                echo "=== per-model cap (600s) reached on $model; killing attempt ==="
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
