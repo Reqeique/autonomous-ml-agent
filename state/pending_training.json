@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 24,
+  "iteration": 24,
+  "goal": "Iter-24 (v32): continue the winning token-decoder capacity lever. v31 (5L/512ff) delivered new best 1.79396 BPC @ ~30min fit. v32 probes token_dec_layers 5->6, token_dec_dim_ff 512->768 at re-locked 30M/96 budget. Target: <1.79396 BPC at same-or-better time-to-convergence.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-09T23:05:00Z",
+  "kernel_version": 32
 }

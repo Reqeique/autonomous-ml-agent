@@ -1,0 +1,86 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 30000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 96,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "source": "RE-LOCKED compute budget (2026-08-09). v27's 10M/384 budget was PROVEN non-convergent at 2.2631 BPC (run w7to9wg0, hardy-aardvark-18, iter-20) because ~12x fewer training steps; 30M/96 converges. The canonical kernel train.ipynb runs at EXACTLY this. These are compute levers only: DO NOT inflate limit_chars/epochs/block_size to lower loss (compute inflation, rejected by push rule). Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, dropout, lr, weight_decay, ...) are NOT locked and MAY be tuned/swept. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "current_best": {
+    "val_loss_nats": 1.2435,
+    "val_bpc": 1.79396,
+    "observed_at": "2026-08-09T22:30:00Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/oywizfcm (dutiful-terrain-22)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "chunk_qk_norm": true,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 5,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 4,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "relu2": true,
+      "bigram": false,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 150,
+      "steps_per_execution": 16,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~30.0 min (1802.9s fit) to 1.79396 BPC @ E40 at re-locked 30M/512/40ep/bs96 budget",
+    "notes": "Iter-23 (kernel v31) = token-decoder capacity probe on the winning lever. v29->v31 token_dec_layers 3->4->5 with dim_ff 256->384->512 (QK-norm on) moved BPC 1.8759 -> 1.8483 -> 1.79396. v30 (chunk decoder scale-up 8->12L/2560) REGRESSED 1.8483->1.8749 and was reverted in v31. The token decoder (the BPC metric surface) is the current bottleneck, not the PerPos chunk decoder. Progression (30M/96 re-locked budget): 1.8869 (v22) -> 1.8833 (window-warmup) -> [1.9049 bigram regression, reverted] -> [v25 QK-norm build ERROR] -> 1.87799 (v28 QK-norm green) -> 1.8759 (v29) -> 1.8483 (v29 token-dec 4L) -> [1.8749 v30 chunk 12L regression] -> 1.79396 (v31 token-dec 5L/512)."
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-24 (v32, next): CONTINUE the winning token-decoder capacity lever. v31 (5L/512ff) delivered 1.79396. Probes: token_dec_layers 5->6 / token_dec_dim_ff 512->768, or sweep nhead {2,4,8} + dropout {0.0,0.05,0.1} at fixed 5L/512. Every recent BPC win came from token-dec scaling; chunk-dec scaling regressed.",
+    "Architecture tuning is OPEN (not locked): sweep/tune chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, lr, weight_decay — these are NOT compute-inflation and are the real BPC levers. Do NOT touch committed_budget fields (30M/512/256/bs96/40ep).",
+    "Re-enable the online W&B sweep once v32 lands green, scoped to the token-decoder space (token_dec_layers/dim_ff/nhead/dropout) plus lr.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
