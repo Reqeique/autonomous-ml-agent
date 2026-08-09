@@ -148,15 +148,19 @@ jobs:
             local log="/tmp/oc_$(echo "$model" | tr '/:' '__').log"
             : > "$log"
             echo "=== [opencode] attempt with model=$model ==="
-            MODEL="$model" opencode github run > "$log" 2>&1 &
+            # Stream the agent's live output to the workflow log (tee) while
+            # also writing it to $log for the watchdog's byte/429/stream checks.
+            # Foreground streaming means the loop stays visible, as it was with
+            # the composite action; tee preserves the file for the monitors.
+            MODEL="$model" opencode github run > >(tee "$log") 2>&1 &
             local pid=$!
             # Kill the attempt when opencode is stuck, three ways:
-            #  1) 429 loop: >=5 new "Too Many Requests" lines within a ~100s window
+            #  1) 429 loop: >=5 new "Too Many Requests" lines (this provider only)
+            #     within a ~100s window
             #  2) stall: no new log bytes for 90s while the process is alive
-            #  3) cap: free-tier primaries can sit silent for minutes before their
-            #     stream opens (TTFB up to ~200s on big prompts), so the cap clock
-            #     starts when the primary stream opens (480s), with a 300s wall cap
-            #     for streams that never open.
+            #  3) cap: free-tier primaries open streams fast but generate slowly,
+            #     so the cap clock starts when the primary stream opens (900s),
+            #     with a 300s wall cap for streams that never open.
             local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest stream_start=0
             while kill -0 "$pid" 2>/dev/null; do
               sleep 4
@@ -215,8 +219,8 @@ jobs:
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 480 ]; then
-                echo "=== per-model cap (480s after stream opened) reached on $model; killing attempt ==="
+              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 900 ]; then
+                echo "=== per-model cap (900s after stream opened) reached on $model; killing attempt ==="
                 tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
