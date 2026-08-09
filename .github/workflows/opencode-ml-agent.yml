@@ -99,6 +99,11 @@ jobs:
             chmod 600 ~/.kaggle/kaggle.json 2>/dev/null || true
           fi
           python -m kaggle --version 2>/dev/null || true
+          # OpenCode snapshots the working tree at startup (git commit); the
+          # runner image has no identity, which would kill the run with
+          # "Author identity unknown" before the model even starts.
+          git config --global user.name "autonomous-ml-agent"
+          git config --global user.email "95624174+Reqeique@users.noreply.github.com"
 
       - name: Determine prompt
         id: prompt
