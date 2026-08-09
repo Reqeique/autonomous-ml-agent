@@ -9,7 +9,7 @@ on:
         description: 'Custom prompt for the agent'
         required: false
         max-length: 100000
-        default: 'Use the ml-training-loop skill. Assess state, do design/tune if useful, push one Kaggle kernel if quotas allow and no pending training, then hand off. Or analyze if completion context present.'
+        default: 'CRITICAL FIRST ACTION: invoke the skill tool with name "ml-training-loop" and follow its instructions exactly. Do not run any bash/python/grep/analysis commands until the skill is loaded and you have read it. Then use the ml-training-loop skill. Assess state, do design/tune if useful, push one Kaggle kernel if quotas allow and no pending training, then hand off. Or analyze if completion context present.'
       max_iterations:
         description: 'Max iterations this run'
         required: false
@@ -133,14 +133,27 @@ jobs:
       - name: Verify skill was loaded
         if: always() && steps.prompt.outputs.prompt != ''
         run: |
-          echo "Searching opencode storage for evidence the ml-training-loop skill was loaded..."
-          # Grep for a phrase that ONLY appears in the skill body (the prompt itself
-          # already mentions 'ml-training-loop', so that string would false-positive).
-          HITS=$(grep -ril "Efficient Handoff Workflow" ~/.local/share/opencode/storage 2>/dev/null | head -5)
-          if [ -n "$HITS" ]; then
-            echo "Skill usage confirmed in:"
-            echo "$HITS"
+          echo "Querying opencode session DB for evidence the ml-training-loop skill was loaded..."
+          DB=$(ls ~/.local/share/opencode/opencode.db 2>/dev/null || echo "")
+          if [ -z "$DB" ]; then
+            echo "::error::opencode.db not found; cannot verify skill usage."
+            exit 1
+          fi
+          HITS=$(python - "$DB" <<'PY'
+import sqlite3, sys
+db = sys.argv[1]
+con = sqlite3.connect(db)
+cur = con.cursor()
+rows = cur.execute(
+    "SELECT COUNT(*) FROM part WHERE data LIKE ? AND data LIKE ?",
+    ('%"tool":"skill"%', '%"name":"ml-training-loop"%')
+).fetchone()
+print(rows[0])
+PY
+)
+          if [ "$HITS" -ge 1 ]; then
+            echo "Skill usage confirmed: ml-training-loop loaded $HITS time(s)."
           else
-            echo "::error::ml-training-loop skill was NOT loaded during this run (no skill-body evidence in opencode storage)."
+            echo "::error::ml-training-loop skill was NOT loaded during this run (no skill-tool call in session DB)."
             exit 1
           fi
