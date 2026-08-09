@@ -1,0 +1,92 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 30000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 96,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "source": "RE-LOCKED compute budget (2026-08-09, iter-20/v28). v27 tried 10M/384 (the prior 2026-08-09 committed lock) and FAILED to converge: 2.2631 BPC (w7to9wg0) — cutting limit_chars 30M->10M + batch 96->384 slashed optimizer steps ~12x (43.7k -> 3.7k), leaving the model data/step-limited. v28 re-locked 30M/96 on the v27 optimization set and converged to 1.8759 BPC in 1600s (~27 min), better than and ~2.2x faster than the old 3524s pipeline. These are compute levers only: DO NOT inflate limit_chars/epochs/block_size to lower loss (compute inflation, rejected by push rule). Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, dropout, lr, weight_decay, ...) are NOT locked and MAY be tuned/swept. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "current_best": {
+    "val_loss_nats": 1.3002,
+    "val_bpc": 1.8759,
+    "observed_at": "2026-08-09T20:02:00Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/z29pp538 (vibrant-surf-19)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "chunk_qk_norm": true,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 3,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 256,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "relu2": true,
+      "bigram": false,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 150,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data (vectorized sliding_window_view)"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~26.7 min (1600s fit) to 1.8759 BPC @ E40 at re-locked 30M/512/40ep/bs96 budget with v27 optimization set (vectorized ds, spe16, warmup150, QK-norm). vs ~58.7 min (3524s) for 1.8833 at the old pipeline's same budget.",
+    "notes": "Iter-15 (v23) window-warmup 1.8833 BPC. Iter-16 (v24) bigram REGRESSED to 1.9049 (disabled in v25). Iter-17 (v25) QK-norm build ERROR (mask broadcast). Iter-18 (v26) fixes mask broadcast -> 1.87799 BPC (gpnqp8gs). Iter-19 (v27, w7to9wg0) 10M/384 committed budget FAILED to converge (2.2631 BPC) - steps cut 12x; budget wrong. Iter-20 (v28, z29pp538) re-locks 30M/96 on v27 optimization set -> NEW BEST 1.8759 BPC @ 1600s (best_loss 1.3002), ~2.2x faster time-to-convergence. Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 -> 2.2597 -> 1.8869 -> 1.8833 (v23) -> [1.9049 bigram regression] -> [v25 ERROR] -> 1.87799 (v26) -> [2.2631 v27 non-convergent 10M/384] -> 1.8759 (v28, 30M/96 re-lock).",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/z29pp538"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-21 (v29, in flight): at re-locked 30M/96 budget, ARCHITECTURE probe on the char-level head: token_dec_layers 3->4, token_emb_dim 128->192, token_dec_dim_ff 256->384, token_dec_nhead 4->6. Rationale: BPC is measured on the token/char decoder output; the small token decoder (emb128/3L) is the direct lever on the metric. Budget fields (limit_chars/block/stride/batch/warmup/spe) untouched.",
+    "Architecture tuning is OPEN (not locked): sweep/tune chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, lr, weight_decay — these are NOT compute-inflation and are the real BPC levers. Do NOT touch committed_budget fields.",
+    "Re-enable the online W&B sweep over d_model/chunk_dec_layers/lr now that v28 (30M/96) is green and the budget is re-locked.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
