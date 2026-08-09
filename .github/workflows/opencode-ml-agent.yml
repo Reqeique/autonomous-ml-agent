@@ -151,9 +151,10 @@ jobs:
             MODEL="$model" opencode github run > "$log" 2>&1 &
             local pid=$!
             # Kill the attempt when opencode is stuck, three ways:
-            #  1) 429 loop: >=5 new "Too Many Requests" lines within a ~96s window
-            #  2) stall: no new log bytes for 120s while the process is alive
-            #  3) cap: hard per-model limit (10 min) so the chain always progresses
+            #  1) 429 loop: >=5 new "Too Many Requests" lines within a ~100s window
+            #  2) stall: no new log bytes for 90s while the process is alive
+            #  3) cap: hard per-model limit (4 min) so the chain progresses fast
+            # Healthy runs emit model output within ~60s, so 4 min is generous.
             local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest
             while kill -0 "$pid" 2>/dev/null; do
               sleep 4
@@ -179,14 +180,14 @@ jobs:
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ $((now - last_change)) -ge 120 ]; then
-                echo "=== stall detected on $model (no output for 120s); killing attempt ==="
+              if [ $((now - last_change)) -ge 90 ]; then
+                echo "=== stall detected on $model (no output for 90s); killing attempt ==="
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ $((now - start)) -ge 600 ]; then
-                echo "=== per-model cap (600s) reached on $model; killing attempt ==="
+              if [ $((now - start)) -ge 240 ]; then
+                echo "=== per-model cap (240s) reached on $model; killing attempt ==="
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
