@@ -176,18 +176,21 @@ jobs:
               fi
               if [ $((n429 - oldest)) -ge 5 ]; then
                 echo "=== rate-limit loop detected on $model (>=5 new 429s in ~100s); killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
               if [ $((now - last_change)) -ge 90 ]; then
                 echo "=== stall detected on $model (no output for 90s); killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
               if [ $((now - start)) -ge 240 ]; then
                 echo "=== per-model cap (240s) reached on $model; killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
