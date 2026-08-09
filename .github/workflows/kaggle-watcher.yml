@@ -2,7 +2,13 @@ name: Kaggle Training Watcher
 
 on:
   schedule:
-    - cron: '*/20 * * * *'
+    # Offset twin entries: GitHub's cron queue is best-effort and can delay
+    # (5-30 min) or skip slots under load. Running on the :00 and :02 marks
+    # means a delayed/skipped primary slot is still caught by its twin within
+    # a couple of minutes. The watcher is idempotent (state-driven), so the
+    # overlap is harmless. */5 is GitHub's minimum interval.
+    - cron: '*/5 * * * *'
+    - cron: '2-59/5 * * * *'
   workflow_dispatch:
 
 permissions: {}
