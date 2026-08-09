@@ -1,9 +1,12 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 8,
+  "iteration": 8,
+  "kernel_version": 16,
+  "goal": "Iter-8 (in flight, bs=512 d=1024 ep=40): context doubling test. Currently RUNNING per Kaggle + W&B, _step=5, val/bpc=2.4524 (early epochs). DO NOT PUSH another kernel.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/hzyupupg",
+  "pushed_at": "2026-08-09T00:05:00Z",
+  "kaggle_status": "RUNNING",
+  "note": "While waiting, an earlier bs=1024 sibling already produced a new best: wobbly-resonance-13 p9dhom2n (bs=1024 d=1024 ep=40, finished 2026-08-09T08:02Z) reached val/bpc=1.9812 (-0.3066 vs iter-7 2.2878). Legitimate context-scaling gain (skill endorses context as next untried lever); NOT compute inflation (epochs+limit_chars held constant). Reserve promotion of p9dhom2n to baseline.json for the analyze step AFTER iter-8 completes, so we can compare bs=512 vs bs=1024 head-to-head before locking the baseline."
 }
