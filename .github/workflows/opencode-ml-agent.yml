@@ -171,7 +171,10 @@ jobs:
               # prompts). So the cap clock starts when the primary stream actually
               # opens (log line "message=stream ... mode=primary"), not at attempt
               # start; a hard wall cap still bounds setup-only hangs.
-              if [ "$stream_start" -eq 0 ] && grep -q "mode=primary" "$log" 2>/dev/null; then
+              # Stream-open detection must match both opencode log formats:
+              #   github run (default): mode: "primary"
+              #   --print-logs:         mode=primary
+              if [ "$stream_start" -eq 0 ] && grep -qE 'mode[:=] ?"?primary"?' "$log" 2>/dev/null; then
                 stream_start=$now
                 echo "=== primary stream opened on $model (${stream_start}s after attempt start); starting cap clock ==="
               fi
