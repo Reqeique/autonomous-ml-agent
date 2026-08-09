@@ -1,0 +1,95 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257: PAD + 256 raw bytes)",
+  "budget_locked": {
+    "limit_chars": 30000000,
+    "block_size": 512,
+    "token_local_window": 128,
+    "epochs": 40,
+    "note": "LOCKED after iter-13/iter-14 search. 30M chars >> 10M (2.2486->1.8869). block_size 512 beats 1024 at both 10M (2.2597 vs 2.5418) and 30M (1.8869 vs 1.9812). DO NOT push more compute budget to chase BPC; improvements must be architectural."
+  },
+  "current_best": {
+    "val_loss_nats": 1.3054,
+    "val_bpc": 1.8833,
+    "observed_at": "2026-08-09T15:10:00Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae (kind-flower-14)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "chunk_dec_dropout": 0.1,
+      "chunk_local_window": null,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "relu_squared_ff": true,
+      "logit_softcap": 15.0,
+      "token_dec_layers": 3,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 256,
+      "token_dec_nhead": 4,
+      "token_local_window": 128,
+      "token_window_warmup": "32->128 over first 12 epochs (rec 13)",
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "learned_pos": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay (fixes iter-4 OperatorNotAllowedInGraphError)",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 500,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs, no early stop)",
+    "time_to_convergence": {
+      "runtime_sec": 3524,
+      "runtime_min": 58.7,
+      "steps_per_epoch_est": 1102,
+      "val_bpc_at_epoch_40": 1.8833
+    },
+    "notes": "Progression: 3.493 (baseline) -> ... -> 2.2878 (d1024) -> 2.2597 (block512, relu2+softcap) -> 2.2486 (10M best) -> 1.8869 (30M, relu2, softcap, block512, window128) -> 1.8833 (iter-15: + token-window warmup 32->128 over first 12 ep). Run bsggqgae (v23) completed clean 40/40 at locked 30M/512 budget in 58.7 min. Warmup gave a small gain (1.8869->1.8833) and confirmed the locked config reproduces. val/loss still drifting down ~0.003/ep at E40 so headroom is architectural, not budget.",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly in the mirror — supplied via GHA env vars. Treat as opaque labels here.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-16 (next push): bigram-hash byte embedding (modded-nanogpt rec 62) at locked 30M/512 budget — hash-trick bigram lookup added to the input embedding (bigram_buckets=8192, bigram_dim=96). Cheap, TPU-safe, directly applicable to byte vocab=257. Builds on iter-15's window-warmup (1.8833 BPC, new best).",
+    "After bigram-hash, layer the next cheap modded-nanogpt wins one at a time: QK-norm on chunk/token attention (record 5), gated value-skip from compressor output to chunk-decoder output (record 55).",
+    "Evaluate Muon optimizer on 2D weights (record 1) — highest leverage but biggest risk on TF/TPU; only after warmup+QK-norm are validated.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization).",
+    "Re-enable the online W&B sweep (RUN_MODE=sweep_online_single_agent) over lr/batch_size/weight_decay once the locked-budget architecture stack is stable."
+  ]
+}

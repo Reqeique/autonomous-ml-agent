@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 16,
+  "iteration": 16,
+  "goal": "Iter-15 landed 1.8833 BPC @ E40 (window-warmup, new best) at locked 30M/512 budget. Next architecture lever: bigram-hash byte embedding (modded-nanogpt rec 62) — hash-trick bigram lookup on the input embedding (bigram_buckets=8192, bigram_dim=96). No budget change.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (new run to be created)",
+  "pushed_at": "2026-08-09T15:25:00Z",
+  "kernel_version": 24
 }
