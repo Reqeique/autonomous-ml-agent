@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 11,
+  "iteration": 11,
+  "goal": "Iter-10 landed 2.2486 BPC @ E36 (ctx512/win128/d1024 + relu2 MLP + logit_softcap=15). 0.27-nat train/val gap at 10M chars = data-limited. Scaling data 10M -> 30M chars at the iter-10 best config. Target <2.2 BPC; expect ~2.5h runtime.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/3ivrkylq",
+  "pushed_at": "2026-08-09T00:05:00Z",
+  "kernel_version": 20
 }
