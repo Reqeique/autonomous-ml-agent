@@ -118,22 +118,77 @@ jobs:
           PROMPT_ONE=$(tr -d '\n' < /tmp/prompt.txt)
           echo "prompt=$PROMPT_ONE" >> "$GITHUB_OUTPUT"
 
-      - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
-        with:
-          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash-free' }}
-          prompt: ${{ steps.prompt.outputs.prompt }}
-          # Workaround for anomalyco/opencode#37823: repos created after
-          # 2026-07-15 receive GitHub's new immutable OIDC subject claim
-          # format, which breaks the App-token exchange path inside
-          # `opencode github run` (owner/repo parsed wrong -> 404 -> "Failed
-          # to parse JSON"). Bypass OIDC and use GITHUB_TOKEN directly.
-          use_github_token: true
+      - name: Run OpenCode (rate-limit watchdog + model chain)
+        id: run_opencode
+        shell: bash
+        timeout-minutes: 45
         env:
-          # In use_github_token mode, opencode reads the PAT from this env var.
-          # Without it, the action dies with "GITHUB_TOKEN environment variable
-          # is not set".  secrets.GITHUB_TOKEN is auto-provisioned by Actions.
+          PROMPT: ${{ steps.prompt.outputs.prompt }}
+          # Model chain: primary -> fallback -> last-resort. The workflow
+          # drives the chain (not the agent) because opencode's internal 429
+          # retry loop blocks the agent from self-redispatching.
+          PRIMARY_MODEL: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash-free' }}
+          FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'nvidia/z-ai/glm-5.2' }}
+          LAST_RESORT_MODEL: nvidia/minimaxai/minimax-m3
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Install opencode if not already present (the composite action normally
+          # installs+caches it; here we self-contain so the watchdog can run).
+          if ! command -v opencode >/dev/null 2>&1; then
+            echo "Installing opencode..."
+            curl -fsSL https://opencode.ai/install | bash
+            export PATH="$HOME/.opencode/bin:$PATH"
+          fi
+          # Bypass OIDC (anomalyco/opencode#37823) and use GITHUB_TOKEN directly.
+          export USE_GITHUB_TOKEN=true
+
+          run_with_model() {
+            local model="$1"
+            local log="/tmp/oc_$(echo "$model" | tr '/:' '__').log"
+            : > "$log"
+            echo "=== [opencode] attempt with model=$model ==="
+            MODEL="$model" opencode github run > "$log" 2>&1 &
+            local pid=$!
+            local checked=0 rl_wins=0 n429 new_lines
+            while kill -0 "$pid" 2>/dev/null; do
+              sleep 4
+              new_lines=$(($(wc -l < "$log" 2>/dev/null || echo 0) - checked))
+              checked=$(wc -l < "$log" 2>/dev/null || echo 0)
+              n429=$(tail -n "$new_lines" "$log" 2>/dev/null | grep -c "Too Many Requests" || true)
+              n429=${n429:-0}
+              if [ "$n429" -ge 2 ]; then
+                rl_wins=$((rl_wins+1))
+              else
+                rl_wins=0
+              fi
+              if [ "$rl_wins" -ge 3 ]; then
+                echo "=== rate-limit loop detected on $model (3 consecutive 429 windows); killing attempt ==="
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+            done
+            wait "$pid"
+            local rc=$?
+            echo "=== opencode $model finished rc=$rc ==="
+            tail -n 20 "$log" 2>/dev/null || true
+            return $rc
+          }
+
+          rc=0
+          for model in "$PRIMARY_MODEL" "$FALLBACK_MODEL" "$LAST_RESORT_MODEL"; do
+            run_with_model "$model" || rc=$?
+            if [ "$rc" -eq 0 ]; then
+              echo "=== success on $model ==="
+              exit 0
+            fi
+            echo "=== model $model failed (rc=$rc); sleeping then trying next in chain ==="
+            sleep 8
+            rc=0
+          done
+          echo "::error::All models in chain failed (rate-limited or errored)."
+          exit 1
 
       - name: Verify skill was loaded
         if: always() && steps.prompt.outputs.prompt != ''
