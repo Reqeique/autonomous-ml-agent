@@ -150,27 +150,34 @@ jobs:
             echo "=== [opencode] attempt with model=$model ==="
             MODEL="$model" opencode github run > "$log" 2>&1 &
             local pid=$!
-            local checked=0 rl_wins=0 n429 new_lines
+            # Sliding window of new-429 counts per 4s tick (24 ticks = ~96s).
+            # opencode retries a 429 with exponential backoff (2s..256s), so a
+            # rate-limited model emits a slow trickle of "Too Many Requests"
+            # lines; a healthy model emits ~none. Kill when >=5 failures land
+            # inside a ~96s window.
+            local counts=() tick=0 new_lines n429 total c rc
             while kill -0 "$pid" 2>/dev/null; do
               sleep 4
-              new_lines=$(($(wc -l < "$log" 2>/dev/null || echo 0) - checked))
-              checked=$(wc -l < "$log" 2>/dev/null || echo 0)
+              new_lines=$(($(wc -l < "$log" 2>/dev/null || echo 0) - tick))
+              tick=$(wc -l < "$log" 2>/dev/null || echo 0)
               n429=$(tail -n "$new_lines" "$log" 2>/dev/null | grep -c "Too Many Requests" || true)
-              n429=${n429:-0}
-              if [ "$n429" -ge 2 ]; then
-                rl_wins=$((rl_wins+1))
-              else
-                rl_wins=0
+              counts+=("${n429:-0}")
+              if [ "${#counts[@]}" -gt 24 ]; then
+                counts=("${counts[@]:1}")
               fi
-              if [ "$rl_wins" -ge 3 ]; then
-                echo "=== rate-limit loop detected on $model (3 consecutive 429 windows); killing attempt ==="
+              total=0
+              for c in "${counts[@]}"; do
+                total=$((total + c))
+              done
+              if [ "$total" -ge 5 ]; then
+                echo "=== rate-limit loop detected on $model (>=5 429s in ~96s window); killing attempt ==="
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
             done
             wait "$pid"
-            local rc=$?
+            rc=$?
             echo "=== opencode $model finished rc=$rc ==="
             tail -n 20 "$log" 2>/dev/null || true
             return $rc
