@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 22,
+  "iteration": 22,
+  "goal": "Iter-22 (v30): scale the PerPos CHUNK decoder (novel core, not scaled since v23) at re-locked 30M/96 budget: chunk_dec_layers 8->12, chunk_dec_dim_ff 2048->2560. Token decoder kept at validated v29 levels (4/384). Target: beat 1.8483 BPC @ ~28min (v29 token-dec probe).",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-09T21:55:00Z",
+  "kernel_version": 30
 }
