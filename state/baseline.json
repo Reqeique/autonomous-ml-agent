@@ -1,0 +1,86 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 30000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 96,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "epochs": 40,
+    "source": "RE-LOCKED compute budget (2026-08-09). Budget-search correction: the iter-19 v27 lock (10M chars / bs384) FAILED to converge (2.2631 BPC, w7to9wg0) because cutting limit_chars 30M->10M + batch 96->384 slashed optimizer steps ~12x (43.7k->3.7k). The minimum budget that converges = 30M chars / bs96 / 40 epochs (~1.8483 BPC in ~28 min). These are compute levers only: DO NOT inflate limit_chars/epochs/block_size to lower loss (compute inflation, rejected by push rule). Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, dropout, lr, weight_decay, ...) are NOT locked and MAY be tuned/swept. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "current_best": {
+    "val_loss_nats": 1.281124,
+    "val_bpc": 1.8483,
+    "observed_at": "2026-08-09T20:15:10Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/dfifxp5i (sleek-night-20, iter-21 v29)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 4,
+      "token_emb_dim": 128,
+      "token_dec_nhead": 4,
+      "token_dec_dim_ff": 384,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "bigram_buckets": 0,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 150,
+      "clip_grad": 1.0,
+      "chunk_qk_norm": true,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data, vectorized sliding_window_view ds, steps_per_execution=16"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~28 min (1700s fit) to 1.8483 BPC @ E40 at re-locked 30M/96/40ep budget. ~2x faster than old-pipeline 1.8833 @ 3524s; beat 1.8833 around ~E26 (~12.4 min in).",
+    "notes": "Iter-21 (v29, dfifxp5i) = token-decoder capacity probe (token_dec_layers 3->4, dim_ff 256->384): NEW BEST 1.8483 BPC @ 1700s. Iter-22 (v30, tyz4oya5) = chunk-decoder scale-up (chunk_dec_layers 8->12, dim_ff 2048->2560) REGRESSED to 1.8749 BPC @ 2019s — the chunk decoder is NOT the bottleneck; reverted in v31. Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 -> 2.2597 -> 1.8869 -> 1.8833 -> [1.9049 bigram regression] -> [v25 QK-norm build ERROR] -> 1.87799 (v26 QK-norm fix) -> 2.2631 (v27 10M/384 non-convergent) -> 1.8759 (v28 re-lock 30M/96) -> 1.8483 (v29 token-dec probe, BEST) -> 1.8749 (v30 chunk-dec regression)."
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-23 (v31, pushed 2026-08-09): REVERT v30 chunk-decoder regression (12L/2560 -> 8L/2048) and EXTEND the winning token-decoder lever (4L/384 -> 5L/512) at the re-locked 30M/96/40ep budget. On completion: compare BPC + time-to-convergence vs 1.8483 @ 1700s.",
+    "Architecture tuning is OPEN (not locked): sweep/tune chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, lr, weight_decay — these are NOT compute-inflation and are the real BPC levers. Do NOT touch committed_budget fields.",
+    "Token decoder is the empirically validated bottleneck (v29 3->4L delivered the only recent sub-1.85 win; v30 chunk scale-up regressed). Continue capacity probes there (layers/ff/emb), and only revisit chunk decoder via a small step (e.g. 8->10L) once the token decoder is saturated.",
+    "Re-enable the online W&B sweep over token_dec_*/chunk_dec_layers/lr once v31 is green.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
