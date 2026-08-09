@@ -158,8 +158,9 @@ jobs:
             #  1) 429 loop: >=5 new "Too Many Requests" lines (this provider only)
             #     within a ~100s window
             #  2) stall: no new log bytes for 90s while the process is alive
-            #  3) cap: free-tier primaries open streams fast but generate slowly,
-            #     so the cap clock starts when the primary stream opens (900s),
+            #  3) cap: free-tier primaries open streams fast but generate slowly
+            #     (~2.6 loop steps/min; a full analyze->design->push cycle is 40+
+            #     steps). Cap clock starts when the primary stream opens (1800s),
             #     with a 300s wall cap for streams that never open.
             local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest stream_start=0
             while kill -0 "$pid" 2>/dev/null; do
@@ -219,8 +220,8 @@ jobs:
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 900 ]; then
-                echo "=== per-model cap (900s after stream opened) reached on $model; killing attempt ==="
+              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 1800 ]; then
+                echo "=== per-model cap (1800s after stream opened) reached on $model; killing attempt ==="
                 tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
