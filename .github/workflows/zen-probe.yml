@@ -107,7 +107,49 @@ jobs:
             -X POST https://integrate.api.nvidia.com/v1/chat/completions \
             -H "Authorization: Bearer $KEY" \
             -H "Content-Type: application/json" \
-            -d '{"model":"nvidia/z-ai/glm-5.2","messages":[{"role":"user","content":"Say OK"}],"max_tokens":16}')
+            -d '{"model":"z-ai/glm-5.2","messages":[{"role":"user","content":"Say OK"}],"max_tokens":16}')
           echo "NIM_HTTP_CODE=$CODE"
           head -c 400 /tmp/nim_resp.json
           echo
+
+      - name: "8 - opencode github run, agent config, big prompt (reproduce real hang)"
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NIM_API_KEY }}
+          PRIVATE_PAT: ${{ secrets.PRIVATE_REPO_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USE_GITHUB_TOKEN: "true"
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          git clone --depth 1 https://x-access-token:${PRIVATE_PAT}@github.com/Reqeique/autonomous-ml-agent-private.git /tmp/agent-cfg8
+          cd /tmp/agent-cfg8
+          BIG_PROMPT="You are an expert ML engineer optimizing a character-level hierarchical transformer (PerPos) on enwik8. You must ARCHITECTURE-FIRST optimize: change model architecture, not just training budget. You have a TPU v5e-8 budget of ~7 hours. Write a detailed engineering plan comparing the current architecture against the state of the art, propose specific architectural changes, and explain the reasoning. Do not write code yet - first produce the architecture analysis."
+          echo "--- opencode github run (240s budget) ---"
+          START=$(date +%s)
+          timeout 240 opencode github run "$BIG_PROMPT" 2>&1 | tail -c 1500
+          RC=$?
+          END=$(date +%s)
+          echo
+          echo "RC=$RC TIME=$((END-START))s"
+
+      - name: "9 - Same but small_model removed (title-gen via primary)"
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NIM_API_KEY }}
+          PRIVATE_PAT: ${{ secrets.PRIVATE_REPO_PAT }}
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          git clone --depth 1 https://x-access-token:${PRIVATE_PAT}@github.com/Reqeique/autonomous-ml-agent-private.git /tmp/agent-cfg9
+          cd /tmp/agent-cfg9
+          python3 -c "
+            import json
+            c = json.load(open('opencode.json'))
+            c.pop('small_model', None)
+            json.dump(c, open('opencode.json','w'), indent=2)
+          "
+          echo "--- opencode run, small_model removed (240s budget) ---"
+          BIG_PROMPT="You are an expert ML engineer optimizing a character-level hierarchical transformer (PerPos) on enwik8. You must ARCHITECTURE-FIRST optimize: change model architecture, not just training budget. You have a TPU v5e-8 budget of ~7 hours. Write a detailed engineering plan comparing the current architecture against the state of the art, propose specific architectural changes, and explain the reasoning. Do not write code yet - first produce the architecture analysis."
+          START=$(date +%s)
+          timeout 240 opencode run --print-logs "$BIG_PROMPT" 2>&1 | tail -c 1500
+          RC=$?
+          END=$(date +%s)
+          echo
+          echo "RC=$RC TIME=$((END-START))s"
