@@ -77,3 +77,37 @@ jobs:
           END=$(date +%s)
           echo
           echo "RC=$RC TIME=$((END-START))s"
+
+      - name: "6 - Reproduce agent config: private repo opencode.json + large prompt"
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NIM_API_KEY }}
+          PRIVATE_PAT: ${{ secrets.PRIVATE_REPO_PAT }}
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          git clone --depth 1 https://x-access-token:${PRIVATE_PAT}@github.com/Reqeique/autonomous-ml-agent-private.git /tmp/agent-cfg
+          cat /tmp/agent-cfg/opencode.json
+          cd /tmp/agent-cfg
+          BIG_PROMPT="You are an expert ML engineer optimizing a character-level hierarchical transformer (PerPos) on enwik8. You must ARCHITECTURE-FIRST optimize: change model architecture, not just training budget. You have a TPU v5e-8 budget of ~7 hours. Write a detailed engineering plan comparing the current architecture against the state of the art, propose specific architectural changes, and explain the reasoning. Do not write code yet - first produce the architecture analysis."
+          echo "--- opencode run with agent opencode.json (big prompt, 240s budget) ---"
+          START=$(date +%s)
+          timeout 240 opencode run --print-logs "$BIG_PROMPT" 2>&1 | tail -c 1200
+          RC=$?
+          END=$(date +%s)
+          echo
+          echo "RC=$RC TIME=$((END-START))s"
+
+      - name: "7 - NIM direct status check"
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NIM_API_KEY }}
+        run: |
+          export PATH="$HOME/.opencode/bin:$PATH"
+          KEY="$NVIDIA_API_KEY"
+          echo "nim key present: $([ -n "$KEY" ] && echo yes || echo no), len=${#KEY}"
+          CODE=$(curl -sS -o /tmp/nim_resp.json -w '%{http_code}' --max-time 60 \
+            -X POST https://integrate.api.nvidia.com/v1/chat/completions \
+            -H "Authorization: Bearer $KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"model":"nvidia/z-ai/glm-5.2","messages":[{"role":"user","content":"Say OK"}],"max_tokens":16}')
+          echo "NIM_HTTP_CODE=$CODE"
+          head -c 400 /tmp/nim_resp.json
+          echo
