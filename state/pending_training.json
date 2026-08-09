@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 9,
+  "iteration": 9,
+  "goal": "Verify reproducibility of the confirmed best (warm-plasma-8, run aa59choc, v16: block_size 512 / stride 256 / token_local_window 128 @ d1024/40ep -> val_bpc 2.2597, best). NOTE: v17 (prime-sponge-9, mn2p267h) tested block_size 1024/stride 512/win 256 and REGRESSED to 2.5418 (confounded: halved step count ~17.5k vs ~35k steps/epoch + 4x context + 4x token window). This v18 re-runs the best block-512 config to confirm run-to-run stability and regenerate the best checkpoint. Next: block 1024 at FIXED stride 256 to isolate the context lever if v18 confirms.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/3fjcvvai",
+  "pushed_at": "2026-08-09T04:15:00Z",
+  "kernel_version": 18
 }
