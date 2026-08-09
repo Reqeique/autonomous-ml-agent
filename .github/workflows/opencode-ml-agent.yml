@@ -140,17 +140,17 @@ jobs:
             exit 1
           fi
           HITS=$(python - "$DB" <<'PY'
-import sqlite3, sys
-db = sys.argv[1]
-con = sqlite3.connect(db)
-cur = con.cursor()
-rows = cur.execute(
-    "SELECT COUNT(*) FROM part WHERE data LIKE ? AND data LIKE ?",
-    ('%"tool":"skill"%', '%"name":"ml-training-loop"%')
-).fetchone()
-print(rows[0])
-PY
-)
+          import sqlite3, sys
+          db = sys.argv[1]
+          con = sqlite3.connect(db)
+          cur = con.cursor()
+          rows = cur.execute(
+              "SELECT COUNT(*) FROM part WHERE data LIKE ? AND data LIKE ?",
+              ('%"tool":"skill"%', '%"name":"ml-training-loop"%')
+          ).fetchone()
+          print(rows[0])
+          PY
+          )
           if [ "$HITS" -ge 1 ]; then
             echo "Skill usage confirmed: ml-training-loop loaded $HITS time(s)."
           else
