@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 15,
+  "iteration": 15,
+  "goal": "Fix v16 crash (@keras.saving -> tf.keras.utils.register_keras_serializable on ReluSquared) + add token-window attention warmup 32->128 over first ~30% epochs at LOCKED 30M/512 budget. Best so far 1.8869 BPC (run fo7dgnau). Verify locked config reproduces and test whether window warmup improves convergence.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (new run to be created)",
+  "pushed_at": "2026-08-09T14:10:00Z",
+  "kernel_version": 23
 }
