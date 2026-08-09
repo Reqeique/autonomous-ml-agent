@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 18,
+  "iteration": 18,
+  "goal": "Iter-17 (v25, chunk QK-norm rec 5) ERRORED at build: QKNormAttention multiplied 4D logits [B*K,H,N,N] by 3D mask [B*K,N,N] (missing head-dim broadcast). Fixed: mask->[B*K,1,N,N]. Iter-18 (v26) re-runs the same QK-norm architecture + ReLU2 + softcap=15, bigram off, locked budget 30M chars / block 512 / 40ep / bs96 (~59 min). Target <1.88 BPC.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-09T18:00:00Z",
+  "kernel_version": 26
 }

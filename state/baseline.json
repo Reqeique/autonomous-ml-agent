@@ -1,0 +1,80 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (30M chars subset, byte vocab=257)",
+  "current_best": {
+    "val_loss_nats": 1.3054,
+    "val_bpc": 1.8833,
+    "observed_at": "2026-08-09T14:11:28Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae (kind-flower-14)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 3,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 256,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "relu2": true,
+      "bigram": false,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 500,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~58.7 min (3524s) to 1.8833 BPC @ E40 at locked 30M/512/40ep budget",
+    "notes": "Iter-15 (kernel v23) = window-warmup run. New best 1.8833 BPC. Iter-16 (v24, bigram-hash embedding rec 62) REGRESSED to 1.9049 BPC (hzyupupg, hopeful-tree-15, 3507s) — bigram disabled again in v25. Iter-17 (v25, chunk QK-norm rec 5) ERRORED at build time: QKNormAttention multiplied 4D logits [B*K,H,N,N] by 3D mask [B*K,N,N] (missing head-dim broadcast) — training never started (run kapdvdg0). Iter-18 (v26) fixes the mask broadcast (m->[B*K,1,N,N]) and re-runs the QK-norm architecture. Locked budget 30M chars / block 512 / 40ep / bs96 is the minimal converging budget found so far (~59 min). Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 (d1024/40ep, bs256) -> 2.2597 (bs512@10M) -> 1.8869 (30M chars, bs512) -> 1.8833 (window-warmup) -> [1.9049 bigram regression] -> [v25 QK-norm build ERROR].",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-18 (in flight): fixed QK-norm mask broadcast bug from iter-17's build error and re-pushed (v26). If QK-norm lands green and helps, apply it to the token-level decoder too, or sweep the window-warmup shape (start=16 vs 32, warmup epochs 8/12/16).",
+    "Re-enable the online W&B sweep over d_model/chunk_dec_layers/lr once QK-norm is green.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
