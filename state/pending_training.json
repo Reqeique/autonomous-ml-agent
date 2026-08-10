@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 20,
+  "iteration": 20,
+  "goal": "Iter-20 (v28): FIRST LEGITIMATE committed-budget run after rejecting the drift probe (v27 actually ran 30M/96/tokenL9/ff1152 = GPT-ification cheat, 1.6417 BPC invalid). Canonical notebook re-pushed as-is: 10M/512/256/bs384, tokenL2/ff256 caps enforced by coerce_config, warmup 150, spe 16, vectorized ds, TimingCallback. Establish valid under-budget baseline + time-to-convergence vs old 1.8833 @ ~59min (30M/bs96).",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T06:00:00Z",
+  "kernel_version": 28
 }
