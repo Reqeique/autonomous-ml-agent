@@ -50,11 +50,17 @@ jobs:
       KAGGLE_API_TOKEN_2: ${{ secrets.KAGGLE_API_TOKEN_2 }}
       KAGGLE_API_TOKEN_3: ${{ secrets.KAGGLE_API_TOKEN_3 }}
       KAGGLE_API_TOKEN_4: ${{ secrets.KAGGLE_API_TOKEN_4 }}
-      # W&B project context (kept out of the public repo; supplied via repository
-      # variables so personal usernames/sweeps aren't committed to public history).
-      WANDB_ENTITY: ${{ vars.WANDB_ENTITY }}
-      WANDB_PROJECT: ${{ vars.WANDB_PROJECT }}
-      WANDB_SWEEP_ID: ${{ vars.WANDB_SWEEP_ID }}
+      # W&B project context. The sweep agent uses DEDICATED variables so it
+      # does not collide with the TPU agent's shared WANDB_ENTITY/WANDB_PROJECT
+      # (which point at the -bpc TPU project). Sweep agent targets the -gpu
+      # project under the -custom entity.
+      SWEEP_WANDB_ENTITY: ${{ vars.SWEEP_WANDB_ENTITY }}
+      SWEEP_WANDB_PROJECT: ${{ vars.SWEEP_WANDB_PROJECT }}
+      SWEEP_WANDB_SWEEP_ID: ${{ vars.SWEEP_WANDB_SWEEP_ID }}
+      # Map to the names the skill reads (kept generic for fallback clarity).
+      WANDB_ENTITY: ${{ vars.SWEEP_WANDB_ENTITY }}
+      WANDB_PROJECT: ${{ vars.SWEEP_WANDB_PROJECT }}
+      WANDB_SWEEP_ID: ${{ vars.SWEEP_WANDB_SWEEP_ID }}
       # Private repo credentials for the runtime checkout.
       PRIVATE_REPO_URL: https://github.com/Reqeique/autonomous-ml-agent-private.git
       PRIVATE_REPO_BRANCH: main
