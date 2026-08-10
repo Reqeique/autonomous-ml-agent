@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 20,
+  "iteration": 20,
+  "goal": "Iter-20 (v39): lock sweep-6det113b winner (0wm5blhd scarlet-sweep-8, 2.0567 BPC @ ~17.4min fit) as a SINGLE verification run at the committed 10M/384 budget (ch=2, d_model=768, chunkL=8/ff=1024/nhead12/win64, qdim=64, emb=128, tokL=1/ff=128/drop0, lr=9e-4, wd=0.1, clip=0.5, learned_pos=False). Confirms the sweep winner reproduces under the fixed budget and gives a clean time-to-convergence number.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/0wm5blhd",
+  "pushed_at": "2026-08-10T15:38:00Z",
+  "kernel_version": 39
 }
