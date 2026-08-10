@@ -1,0 +1,93 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 30000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 96,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "source": "LOCKED compute budget (2026-08-10, re-locked from 10M/384). The canonical kernel train.ipynb runs at EXACTLY this. 10M/384 was non-convergent (2.26 BPC, ~12x fewer steps per epoch) -> RE-LOCKED to 30M/96 which converges; this matches the old best run's budget but with warmup 150 + steps_per_execution 16 + vectorized datasets (fit time dropped ~59min -> ~34min). These are compute levers only: DO NOT inflate limit_chars/epochs/block_size to lower loss (compute inflation, rejected by push rule). Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, dropout, lr, weight_decay, ...) are NOT locked and MAY be tuned/swept. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "current_best": {
+    "val_loss_nats": 1.1663,
+    "val_bpc": 1.6826,
+    "observed_at": "2026-08-10T02:00:00Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/ffjthxm3 (fine-glitter-25)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "chunk_qk_norm": true,
+      "token_qk_norm": true,
+      "token_dec_layers": 7,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 896,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "bigram": false,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 150,
+      "steps_per_execution": 16,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~34 min (2038s runtime / 2016s fit) to 1.6826 BPC @ E40 at locked 30M/512/40ep/bs96 budget. Crossed the previous best (1.8833) by E10 (~5 min of fit). ~1.7x faster fit than the old 59min best.",
+    "notes": "Iter-19 (v27): FIRST RUN AT RE-LOCKED BUDGET. 10M/384 was non-convergent (hardy-aardvark-18 w7to9wg0 = 2.2631 BPC, ~12x fewer steps) so budget re-locked to 30M/96. Added token_qk_norm (v34 probe) on top of monotonic token-dec scaling. Token-dec lever (layers/dim_ff): 3L/256=1.8759 (z29pp538) -> 4L/384=1.8483 (dfifxp5i) -> 5L/512=1.794 (oywizfcm) -> 6L/768=1.7187 (8dapi5ep) -> 7L/896=1.7047 (in2kuivh) -> 7L/896+token_qk_norm=1.6826 (ffjthxm3, NEW BEST). Chunk-dec 12L/2560 scale-up (tyz4oya5 prime-mountain-21) REGRESSED 1.8483->1.8749 so reverted to 8L/2048. Iter-20 (v35) = continue token-dec lever to 8L/1024 + token_qk_norm. Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 -> 2.2597 -> 1.8869 -> 1.8833 -> [1.9049 bigram regression] -> [v25 QK-norm build ERROR] -> 1.8759 -> 1.8483 -> 1.794 -> 1.7187 -> 1.7047 -> 1.6826.",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/ffjthxm3"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-20 (v35, in flight): continue the winning token-dec lever to 8L/1024 + token_qk_norm (kept from v34). Token-dec scaling is the ONLY lever that has monotonically improved BPC: 3L:1.876 -> 4L:1.848 -> 5L:1.794 -> 6L:1.719 -> 7L:1.705 -> 7L+qk:1.6826. Expect diminishing returns — if 8L/1024 regresses, lock 7L/896+qk and switch levers.",
+    "If token-dec saturates, next lever candidates: (a) lr sweep around 9e-4 (token-dec growth may shift optimal lr), (b) token_emb_dim 128->256, (c) chunk_local_window=128 (local-causal chunk attention), (d) re-enable online W&B sweep over the token-dec neighborhood {7,8}x{896,1024}x qk_norm.",
+    "Chunk-dec scale-up (12L/2560) already REGRESSED (1.8483->1.8749, tyz4oya5) — do not revisit chunk_dec_layers>8 / chunk_dec_dim_ff>2048 without a new hypothesis.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
