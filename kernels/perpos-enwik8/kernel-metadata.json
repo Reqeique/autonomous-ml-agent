@@ -1,0 +1,16 @@
+{
+  "id": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "title": "ml playground perpos enwik8",
+  "code_file": "train.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": true,
+  "enable_internet": true,
+  "machine_shape": "TpuV5E8",
+  "accelerator": "TpuV5E8",
+  "keywords": ["bpc", "enwik8", "char-level", "transformer", "wandb"],
+  "dataset_sources": [],
+  "competition_sources": []
+}
