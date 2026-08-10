@@ -37,7 +37,7 @@ jobs:
     concurrency:
       group: opencode-ml-agent
       cancel-in-progress: false
-    timeout-minutes: 50
+    timeout-minutes: 75
     env:
       # Map user-friendly secret names to OpenCode's standard provider env vars.
       OPENCODE_API_KEY: ${{ secrets.OPENCODE_ZEN_API_KEY }}
@@ -132,7 +132,7 @@ jobs:
       - name: Run OpenCode (rate-limit watchdog + model chain)
         id: run_opencode
         shell: bash
-        timeout-minutes: 45
+        timeout-minutes: 70
         env:
           PROMPT: ${{ steps.prompt.outputs.prompt }}
           # Model chain: primary -> fallback -> last-resort. The workflow
@@ -169,7 +169,7 @@ jobs:
             #     (TTFB on big prompts is up to 200s, so 90s was too aggressive)
             #  3) cap: free-tier primaries open streams fast but generate slowly
             #     (~2.6 loop steps/min; a full analyze->steer->fold cycle is 40+
-            #     steps). Cap clock starts when the primary stream opens (1800s),
+            #     steps). Cap clock starts when the primary stream opens (2400s),
             #     with a 300s wall cap for streams that never open.
             local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest stream_start=0
             while kill -0 "$pid" 2>/dev/null; do
@@ -221,8 +221,8 @@ jobs:
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 1800 ]; then
-                echo "=== per-model cap (1800s after stream opened) reached on $model; killing attempt ==="
+              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 2400 ]; then
+                echo "=== per-model cap (2400s after stream opened) reached on $model; killing attempt ==="
                 tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
