@@ -1,9 +1,19 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 20,
+  "iteration": 20,
+  "goal": "Iter-20 (v42): RE-PUSH of iter-19 intent after fixing KeyError('ch') crash. v27 crashed at coerce_config line 994 because FIXED lacked 'ch' key (cfg[\"ch\"] referenced but FIXED had only dataset/limit_chars/block_size/stride). Working-tree fix adds 'ch': 4 to FIXED; verified dry-run of coerce_config with ch present produces no adjustments (adj=none) at d_model=1024/qdim=128/chunk_nhead=8/batch=384. Same committed budget: limit_chars=10M, block=512, stride=256, bs=384, warmup=150, spe=16, vectorized sliding_window_view datasets, TimingCallback, QK-norm chunk attention. Target: first ACTUAL run at committed budget - compare time-to-convergence and BPC vs old 1.8833 @ ~59min @ 30M/bs96. token_dec_layers=2 (CAP enforced).",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T17:55:00Z",
+  "kernel_version": 42,
+  "prior_iter_analysis": {
+    "iter": 19,
+    "kernel_version": 27,
+    "status": "ERROR",
+    "failure": "KeyError('ch') at coerce_config line 994 (cfg[\"quantized_dim\"] % cfg[\"ch\"]). Training never started - crashed during config coercion BEFORE fit() began (after TPU init OK, after W&B login OK, after enwik8 download OK). Root cause: FIXED dict in pushed v27 lacked the 'ch' key (had only dataset/limit_chars/block_size/stride), but coerce_config, build_model and HierarchicalCharTransformer all reference cfg[\"ch\"]. Fix: add 'ch': 4 to FIXED (already in working tree, verified by dry-run).",
+    "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc - no metrics logged (crash pre-fit)",
+    "time_to_convergence": "N/A - crashed",
+    "bpc": "N/A"
+  }
 }
