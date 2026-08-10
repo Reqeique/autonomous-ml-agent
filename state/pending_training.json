@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 21,
+  "iteration": 21,
+  "goal": "Iter-21 (v45): REBALANCE MTP aux weight 0.5->0.25. v44 (cosmic-fire-18, k02c36cd) hit 2.0591 BPC in 15.4min at committed budget but train/loss 3.351 vs val/loss 1.427 showed MTP aux heads dominate the training gradient (~57%). Halve mtp_weight to favor the pure main-CE objective that val measures. Same budget/architecture (d768/ch2/MTP2/window64). Target: BPC < 2.0549 (anchor nsz5hx1k).",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T21:11:00Z",
+  "kernel_version": 45
 }
