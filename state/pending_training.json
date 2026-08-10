@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 20,
+  "iteration": 20,
+  "goal": "Iter-20 (v28): FOLD SWEEP WINNER into canonical CONFIG at the LOCKED budget. ch=2 (moved out of FIXED), d768, qd64, chunk ff1024, chunk_nhead 12, chunk_local_window 64, learned_pos false, compressor_emb_dim 128, tokL1/ff128/dropout0, wd 0.1, clip 0.5, sample_every 40. Proven 2.0549 BPC (etgajrgq) vs canonical v27 2.2969 at same 10M/512/256/bs384. Verify + report time-to-convergence.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T18:00:00Z",
+  "kernel_version": 41
 }
