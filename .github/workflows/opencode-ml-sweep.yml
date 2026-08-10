@@ -180,7 +180,7 @@ jobs:
                 bytes_prev=$bytes_now
                 last_change=$now
               fi
-              if [ "$stream_start" -eq 0 ] && grep -qE 'mode[:=] ?"?primary"? ' "$log" 2>/dev/null; then
+              if [ "$stream_start" -eq 0 ] && grep -qE 'mode[:=] ?"?primary"?' "$log" 2>/dev/null; then
                 stream_start=$now
                 echo "=== primary stream opened on $model (${stream_start}s after attempt start); starting cap clock ==="
               fi
