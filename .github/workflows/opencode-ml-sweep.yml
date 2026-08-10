@@ -8,7 +8,8 @@ on:
       prompt:
         description: 'Custom prompt for the agent'
         required: false
-        default: 'Use the ml-sweep-loop skill. Monitor the GPU sweep, detect stagnation, narrow the search space, fold any budget-respecting winner into the canonical config as a PR. Never push Kaggle kernels.'
+        max-length: 100000
+        default: 'CRITICAL FIRST ACTION: invoke the skill tool with name "ml-sweep-loop" and follow its instructions exactly. Do not run any bash/python/grep/analysis commands until the skill is loaded and you have read it. Then use the ml-sweep-loop skill. Read state/sweep_state.json and state/baseline.json. Pull the W&B sweep runs (SWEEP_WANDB_PROJECT/SWEEP_WANDB_SWEEP_ID) via the API. Rank by BPC under the committed budget; reject any run that inflated compute. If the sweep is stagnating, narrow sweep_config.json around the best arms, create the successor sweep, update the SWEEP_WANDB_SWEEP_ID/WANDB_SWEEP_ID repo variables, and open a PR. If the best run beats baseline current_best (1.8833 BPC) under the same budget, open a PR folding the clamped winning config into the canonical configs and update state/baseline.json current_best. Update state/sweep_state.json with fresh metrics. Report with links. Do NOT push Kaggle kernels.'
       max_iterations:
         description: 'Max iterations this run'
         required: false
@@ -21,8 +22,6 @@ on:
         description: 'Fallback model when primary is rate-limited'
         required: false
         default: 'opencode/deepseek-v4-flash-free'
-  repository_dispatch:
-    types: [kaggle-sweep-trigger, ml-agent-trigger]
 
 permissions: {}
 
@@ -57,10 +56,6 @@ jobs:
       SWEEP_WANDB_ENTITY: ${{ vars.SWEEP_WANDB_ENTITY }}
       SWEEP_WANDB_PROJECT: ${{ vars.SWEEP_WANDB_PROJECT }}
       SWEEP_WANDB_SWEEP_ID: ${{ vars.SWEEP_WANDB_SWEEP_ID }}
-      # Map to the names the skill reads (kept generic for fallback clarity).
-      WANDB_ENTITY: ${{ vars.SWEEP_WANDB_ENTITY }}
-      WANDB_PROJECT: ${{ vars.SWEEP_WANDB_PROJECT }}
-      WANDB_SWEEP_ID: ${{ vars.SWEEP_WANDB_SWEEP_ID }}
       # Private repo credentials for the runtime checkout.
       PRIVATE_REPO_URL: https://github.com/Reqeique/autonomous-ml-agent-private.git
       PRIVATE_REPO_BRANCH: main
@@ -68,7 +63,10 @@ jobs:
       - name: Checkout public shell (workflows only)
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          # Persist GITHUB_TOKEN so the agent's final `git push -u origin`
+          # (branch setup) authenticates instead of dying with
+          # "could not read Username" (exit 128) after a successful run.
+          persist-credentials: true
 
       - name: Pull private tree
         run: |
@@ -83,6 +81,7 @@ jobs:
           for item in $(ls -A1 | grep -v -E '^(\.git|\.github)$'); do
             cp -r "$item" "$GITHUB_WORKSPACE/"
           done
+          # AGENTS.md, opencode.json, scripts, skills, kernels, state - all from private.
           for dotfile in .opencode .agents AGENTS.md opencode.json; do
             if [ -e "/tmp/private/$dotfile" ]; then
               cp -r "/tmp/private/$dotfile" "$GITHUB_WORKSPACE/"
@@ -105,6 +104,11 @@ jobs:
             chmod 600 ~/.kaggle/kaggle.json 2>/dev/null || true
           fi
           python -m kaggle --version 2>/dev/null || true
+          # OpenCode snapshots the working tree at startup (git commit); the
+          # runner image has no identity, which would kill the run with
+          # "Author identity unknown" before the model even starts.
+          git config --global user.name "autonomous-ml-agent"
+          git config --global user.email "95624174+Reqeique@users.noreply.github.com"
 
       - name: Determine prompt
         id: prompt
@@ -116,22 +120,167 @@ jobs:
           FALLBACK_MODEL: ${{ github.event.inputs.fallback_model }}
         run: |
           if [ "$EVENT_NAME" = "repository_dispatch" ]; then
-            PROMPT="Sweep-trigger received. Payload: $PAYLOAD. Use the ml-sweep-loop skill. Monitor the GPU sweep (pull W&B runs, rank by BPC under the committed budget), detect stagnation, steer the search space, fold any budget-respecting winner into the canonical config as a PR, and update state/sweep_state.json. Never push Kaggle kernels. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL."
+            PROMPT="Sweep-trigger received. Payload: $PAYLOAD. CRITICAL FIRST ACTION: invoke the skill tool with name \"ml-sweep-loop\" and follow its instructions exactly. Monitor the GPU sweep (pull W&B runs, rank by BPC under the committed budget), detect stagnation, steer the search space, fold any budget-respecting winner into the canonical config as a PR, and update state/sweep_state.json. Never push Kaggle kernels. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL."
           else
-            PROMPT="${INPUT_PROMPT:-Use the ml-sweep-loop skill. Read state/sweep_state.json and state/baseline.json. Pull the W&B sweep runs via the API. Rank by BPC under the committed budget; reject any run that inflated compute. If the sweep is stagnating, narrow sweep_config.json around the best arms, create the successor sweep, update the WANDB_SWEEP_ID repo variable, and open a PR. If the best run beats baseline current_best (1.8833 BPC) under the same budget, open a PR folding the clamped winning config into the canonical configs and update state/baseline.json current_best. Update state/sweep_state.json with fresh metrics. Report with links. Do NOT push Kaggle kernels. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL.}"
+            PROMPT="${INPUT_PROMPT:-CRITICAL FIRST ACTION: invoke the skill tool with name \"ml-sweep-loop\" and follow its instructions exactly. Do not run any bash/python/grep/analysis commands until the skill is loaded and you have read it. Then use the ml-sweep-loop skill. Read state/sweep_state.json and state/baseline.json. Pull the W&B sweep runs (SWEEP_WANDB_PROJECT/SWEEP_WANDB_SWEEP_ID) via the API. Rank by BPC under the committed budget; reject any run that inflated compute. If the sweep is stagnating, narrow sweep_config.json around the best arms, create the successor sweep, update the SWEEP_WANDB_SWEEP_ID/WANDB_SWEEP_ID repo variables, and open a PR. If the best run beats baseline current_best (1.8833 BPC) under the same budget, open a PR folding the clamped winning config into the canonical configs and update state/baseline.json current_best. Update state/sweep_state.json with fresh metrics. Report with links. Do NOT push Kaggle kernels. Primary model: $MODEL. Fallback if rate-limited: $FALLBACK_MODEL.}"
           fi
+          # Write prompt to a file then emit it as a single GITHUB_OUTPUT line.
           printf '%s' "$PROMPT" > /tmp/prompt.txt
-          echo "prompt=$(cat /tmp/prompt.txt)" >> "$GITHUB_OUTPUT"
+          PROMPT_ONE=$(tr -d '\n' < /tmp/prompt.txt)
+          echo "prompt=$PROMPT_ONE" >> "$GITHUB_OUTPUT"
 
-      - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
-        with:
-          model: ${{ github.event.inputs.model || 'nvidia/z-ai/glm-5.2' }}
-          prompt: ${{ steps.prompt.outputs.prompt }}
-          # Workaround for anomalyco/opencode#37823: repos created after
-          # 2026-07-15 receive GitHub's new immutable OIDC subject claim
-          # format, which breaks the App-token exchange path inside
-          # `opencode github run`. Bypass OIDC and use GITHUB_TOKEN directly.
-          use_github_token: true
+      - name: Run OpenCode (rate-limit watchdog + model chain)
+        id: run_opencode
+        shell: bash
+        timeout-minutes: 45
         env:
+          PROMPT: ${{ steps.prompt.outputs.prompt }}
+          # Model chain: primary -> fallback -> last-resort. The workflow
+          # drives the chain (not the agent) because opencode's internal 429
+          # retry loop blocks the agent from self-redispatching.
+          PRIMARY_MODEL: ${{ github.event.inputs.model || 'nvidia/z-ai/glm-5.2' }}
+          FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'opencode/deepseek-v4-flash-free' }}
+          LAST_RESORT_MODEL: nvidia/minimaxai/minimax-m3
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Install opencode if not already present.
+          if ! command -v opencode >/dev/null 2>&1; then
+            echo "Installing opencode..."
+            curl -fsSL https://opencode.ai/install | bash
+            export PATH="$HOME/.opencode/bin:$PATH"
+          fi
+          # Bypass OIDC (anomalyco/opencode#37823) and use GITHUB_TOKEN directly.
+          export USE_GITHUB_TOKEN=true
+
+          run_with_model() {
+            local model="$1"
+            local log="/tmp/oc_$(echo "$model" | tr '/:' '__').log"
+            : > "$log"
+            echo "=== [opencode] attempt with model=$model ==="
+            # Stream the agent's live output to the workflow log (tee) while
+            # also writing it to $log for the watchdog's byte/429/stream checks.
+            MODEL="$model" opencode github run > >(tee "$log") 2>&1 &
+            local pid=$!
+            # Kill the attempt when opencode is stuck, three ways:
+            #  1) 429 loop: >=5 new "Too Many Requests" lines (this provider only)
+            #     within a ~100s window
+            #  2) stall: no new log bytes for 90s while the process is alive
+            #  3) cap: free-tier primaries open streams fast but generate slowly
+            #     (~2.6 loop steps/min; a full analyze->steer->fold cycle is 40+
+            #     steps). Cap clock starts when the primary stream opens (1800s),
+            #     with a 300s wall cap for streams that never open.
+            local cums=() bytes_now bytes_prev=0 last_change=$(date +%s) start=$(date +%s) n429 now cum oldest stream_start=0
+            while kill -0 "$pid" 2>/dev/null; do
+              sleep 4
+              now=$(date +%s)
+              bytes_now=$(wc -c < "$log" 2>/dev/null || echo 0)
+              if [ "$bytes_now" -ne "$bytes_prev" ]; then
+                bytes_prev=$bytes_now
+                last_change=$now
+              fi
+              if [ "$stream_start" -eq 0 ] && grep -qE 'mode[:=] ?"?primary"? ' "$log" 2>/dev/null; then
+                stream_start=$now
+                echo "=== primary stream opened on $model (${stream_start}s after attempt start); starting cap clock ==="
+              fi
+              # Count 429s for THIS model's provider only. Title generation uses
+              # small_model which may live on a different provider (e.g. NIM), so a
+              # blanket "Too Many Requests" grep would falsely kill a Zen-primary
+              # attempt when NIM (title-gen) is rate-limited.
+              case "$model" in
+                opencode/*) host_frag="opencode.ai" ;;
+                nvidia/*) host_frag="integrate.api.nvidia.com" ;;
+                *) host_frag="" ;;
+              esac
+              if [ -n "$host_frag" ]; then
+                n429=$(grep -c "url: \"https://$host_frag" "$log" 2>/dev/null || true)
+              else
+                n429=$(grep -c "Too Many Requests" "$log" 2>/dev/null || true)
+              fi
+              n429=${n429:-0}
+              # Ring buffer of cumulative 429 counts (25 ticks ~= 100s window).
+              cums+=("$n429")
+              if [ "${#cums[@]}" -gt 25 ]; then
+                oldest=${cums[0]}
+                cums=("${cums[@]:1}")
+              else
+                oldest=${cums[0]:-0}
+              fi
+              if [ $((n429 - oldest)) -ge 5 ]; then
+                echo "=== rate-limit loop detected on $model (>=5 new 429s in ~100s); killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+              if [ $((now - last_change)) -ge 90 ]; then
+                echo "=== stall detected on $model (no output for 90s); killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+              if [ "$stream_start" -gt 0 ] && [ $((now - stream_start)) -ge 1800 ]; then
+                echo "=== per-model cap (1800s after stream opened) reached on $model; killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+              if [ "$stream_start" -eq 0 ] && [ $((now - start)) -ge 300 ]; then
+                echo "=== no primary stream within 300s of attempt start on $model; killing attempt ==="
+                tail -n 25 "$log" 2>/dev/null || true
+                kill -9 "$pid" 2>/dev/null || true
+                wait "$pid" 2>/dev/null || true
+                return 2
+              fi
+            done
+            wait "$pid"
+            rc=$?
+            echo "=== opencode $model finished rc=$rc ==="
+            tail -n 20 "$log" 2>/dev/null || true
+            return $rc
+          }
+
+          rc=0
+          for model in "$PRIMARY_MODEL" "$FALLBACK_MODEL" "$LAST_RESORT_MODEL"; do
+            run_with_model "$model" || rc=$?
+            if [ "$rc" -eq 0 ]; then
+              echo "=== success on $model ==="
+              exit 0
+            fi
+            echo "=== model $model failed (rc=$rc); sleeping then trying next in chain ==="
+            sleep 8
+            rc=0
+          done
+
+          echo "::error::All models in chain failed (rate-limited or errored)."
+          exit 1
+
+      - name: Verify skill was loaded
+        if: always() && steps.prompt.outputs.prompt != ''
+        run: |
+          echo "Querying opencode session DB for evidence the ml-sweep-loop skill was loaded..."
+          DB=$(ls ~/.local/share/opencode/opencode.db 2>/dev/null || echo "")
+          if [ -z "$DB" ]; then
+            echo "::error::opencode.db not found; cannot verify skill usage."
+            exit 1
+          fi
+          HITS=$(python - "$DB" <<'PY'
+          import sqlite3, sys
+          db = sys.argv[1]
+          con = sqlite3.connect(db)
+          cur = con.cursor()
+          rows = cur.execute(
+              "SELECT COUNT(*) FROM part WHERE data LIKE ? AND data LIKE ?",
+              ('%"tool":"skill"%', '%"name":"ml-sweep-loop"%')
+          ).fetchone()
+          print(rows[0])
+          PY
+          )
+          if [ "$HITS" -ge 1 ]; then
+            echo "Skill usage confirmed: ml-sweep-loop loaded $HITS time(s)."
+          else
+            echo "::error::ml-sweep-loop skill was NOT loaded during this run (no skill-tool call in session DB)."
+            exit 1
+          fi
