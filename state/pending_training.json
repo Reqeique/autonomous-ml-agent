@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 21,
+  "iteration": 21,
+  "goal": "Iter-21 (v34): sync canonical notebook to v33 winning config (30M/96, token_dec 7L/896), add token_qk_norm=True probe (QK-norm on token-level attention; chunk decoder already has it, modded-nanogpt rec 5). Target: <1.7047 BPC (from v33 new best 1.7047).",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T00:45:00Z",
+  "kernel_version": 34
 }
