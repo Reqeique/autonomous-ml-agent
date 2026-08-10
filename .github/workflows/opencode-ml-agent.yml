@@ -157,7 +157,8 @@ jobs:
             # Kill the attempt when opencode is stuck, three ways:
             #  1) 429 loop: >=5 new "Too Many Requests" lines (this provider only)
             #     within a ~100s window
-            #  2) stall: no new log bytes for 90s while the process is alive
+            #  2) stall: no new log bytes for 300s while the process is alive
+            #     (TTFB on big prompts is up to 200s, so 90s was too aggressive)
             #  3) cap: free-tier primaries open streams fast but generate slowly
             #     (~2.6 loop steps/min; a full analyze->design->push cycle is 40+
             #     steps). Cap clock starts when the primary stream opens (1800s),
@@ -213,8 +214,8 @@ jobs:
                 wait "$pid" 2>/dev/null || true
                 return 2
               fi
-              if [ $((now - last_change)) -ge 90 ]; then
-                echo "=== stall detected on $model (no output for 90s); killing attempt ==="
+              if [ $((now - last_change)) -ge 300 ]; then
+                echo "=== stall detected on $model (no output for 300s); killing attempt ==="
                 tail -n 25 "$log" 2>/dev/null || true
                 kill -9 "$pid" 2>/dev/null || true
                 wait "$pid" 2>/dev/null || true
