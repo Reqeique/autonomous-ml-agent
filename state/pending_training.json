@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 23,
+  "iteration": 23,
+  "goal": "Iter-23 (v36): continue the WINNING token-dec lever 8L/1024 -> 9L/1152 (monotonic: 3L:1.876 -> 4L:1.848 -> 5L:1.794 -> 6L:1.719 -> 7L:1.705 -> 7L+qk:1.6826 -> 8L/1024+qk:1.6621 NEW BEST). Budget locked at 30M/96. If 9L/1152 stalls, lock depth and switch lever. Target: <1.6621 BPC.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T04:30:00Z",
+  "kernel_version": 36
 }
