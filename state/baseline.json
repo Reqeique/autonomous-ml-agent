@@ -1,0 +1,92 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 30000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 96,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "source": "RE-LOCKED compute budget (2026-08-09, after iter-19/v32). The canonical kernel train.ipynb runs at EXACTLY this. These are compute levers only: DO NOT inflate limit_chars/epochs/block_size to lower loss (compute inflation, rejected by push rule). The 10M/bs384 experiment (v27) was NON-CONVERGENT (2.26 BPC, hardy-aardvark-18/w7to9wg0) and is rejected; 30M/bs96 converges and delivered 1.7187 BPC. Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_*, dropout, lr, weight_decay, ...) are NOT locked and MAY be tuned/swept. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "current_best": {
+    "val_loss_nats": 1.1913,
+    "val_bpc": 1.7187,
+    "observed_at": "2026-08-09T22:59:20Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/8dapi5ep (warm-armadillo-23)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "chunk_qk_norm": true,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 6,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 768,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "relu2": true,
+      "bigram": false,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 150,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 38,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~31.9 min (1912s fit) to 1.7187 BPC @ E38 at RE-LOCKED 30M/512/40ep/bs96 budget. Crossed old best 1.8833 by ~E12. Fastest run ever (vectorized ds + spe16).",
+    "notes": "Iter-19 (v32, run 8dapi5ep warm-armadillo-23) = NEW BEST 1.7187 BPC @ E38. Winning lever = token-decoder scaling (tdec3/ff256 1.8833 -> tdec4/ff384 1.8483 -> tdec5/ff512 1.79396 -> tdec6/ff768 1.7187); gains GROWING per step. chunk-side scale-up (12L/2560) regressed (1.8483->1.8749) and reverted to 8L/2048. QK-norm (rec 5) landed green and is ON. v27 10M/384 budget NON-CONVERGENT (2.26 BPC) -> budget re-locked to 30M/96. Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 -> 2.2597 -> 1.8869 -> 1.8833 -> [1.9049 bigram regression] -> [v25 build ERROR] -> 1.8780 (QK-norm fix) -> 1.8759 -> 1.8483 -> 1.8749 -> 1.79396 -> 1.7187.",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-20 (v33, next): continue the WINNING token-decoder lever — token_dec_layers 6->7, token_dec_dim_ff 768->896 (probe; v32 6L/768 delivered 1.7187). Everything else identical to v32 (30M/96/512/40ep). Report time-to-convergence vs v32's ~32 min.",
+    "Architecture tuning is OPEN (not locked): sweep/tune token_dec_*, chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, lr, weight_decay — these are NOT compute-inflation and are the real BPC levers. Do NOT touch committed_budget fields.",
+    "chunk-side scaling (12L/2560) REGRESSED — do NOT retry chunk_dec_layers>8 / dim_ff>2048; focus remaining capacity on token-decoder lever.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
