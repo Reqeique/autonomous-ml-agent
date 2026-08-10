@@ -1,0 +1,104 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 10000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 384,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "source": "LOCKED compute budget (2026-08-09) — HARD, final. The canonical kernel train.ipynb runs at EXACTLY this. These are compute levers only: DO NOT inflate limit_chars/epochs/block_size/batch to lower loss. INFLATING COMPUTE TO CUT BPC IS THE CHEAT WE ARE PREVENTING. Instead the agent must EXHAUST/EXPLOIT this budget: squeeze the LOWEST possible BPC WITHIN these fixed compute limits via architecture/efficiency work (tune the novel PerPos parts, data pipeline, schedule, regularization). The metric is minimum-BPC-under-budget and time-to-convergence-at-budget, never BPC-at-any-cost. Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_* within caps, dropout, lr, weight_decay, ...) are tunable; budget fields are NOT. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "architecture_caps": {
+    "token_dec_layers": 2,
+    "token_dec_dim_ff": 256,
+    "chunk_dec_layers": 8,
+    "chunk_dec_dim_ff": 2048,
+    "source": "ANTI-GPT-IFICATION guardrail (2026-08-09). The token decoder is a SMALL upsampler by design; the chunk decoder is the main AR model. Inflating decoder layers/FF trivially lowers BPC by making the model a generic GPT transformer and UNDERMINES the novel PerPos hierarchy. These are HARD caps enforced in the kernel's coerce_config() - any config with over-cap values is clamped down and logged. The agent's earlier inflation (token_dec_layers 3>2, chunk FF 512->1024->2048) was this cheat; token decoder reset to canonical 2. Novel-architecture hyperparams (chunk_size, quantized_dim, compressor design, window warmup shape) remain freely tunable."
+  },
+  "current_best": {
+    "val_loss_nats": 1.4243,
+    "val_bpc": 2.0549,
+    "observed_at": "2026-08-10T19:59:00Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/nsz5hx1k (valiant-haze-17)",
+    "note": "LOCKED-BUDGET best (10M/512/256/bs384/40ep). Anchored at the sweep winner config folded into the canonical kernel. v27->v43 race noise: earlier PRs misattributed 2.2969 (bjppi86n canonical arch) and 2.0549 (etgajrgq/n sz5hx1k sweep arch). The 1.8833 best was at the OLD 30M/bs96 budget, which is FORBIDDEN now.",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 10000000,
+      "val_frac": 0.1,
+      "d_model": 768,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 12,
+      "chunk_dec_dim_ff": 1024,
+      "quantized_dim": 64,
+      "quantization_levels": 256,
+      "chunk_size": 2,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 128,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "relu2": true,
+      "bigram": false,
+      "chunk_qk_norm": true,
+      "chunk_local_window": 64,
+      "compressor_emb_dim": 128,
+      "compressor_causal": true,
+      "batch_size": 384,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.1,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 150,
+      "clip_grad": 0.5,
+      "steps_per_execution": 16,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "891s (~14.9 min) total fit / 40 epochs / 3640 steps to 2.0549 BPC at LOCKED 10M/512/256/bs384 budget. STILL IMPROVING at E40 (val 1.4468@E30 -> 1.4243@E40) — model is UNDERTRAINED at ~3.6k optimizer steps vs ~48.8k that produced old 1.8833 @ 30M. BPC-at-budget not yet at ceiling; next levers target per-step efficiency.",
+    "notes": "Iter-19/20 (v27..v43 race): the 10M/384 budget ran several archs. Canonical d1024/ch4 arch = 2.2969 BPC (bjppi86n); sweep winner (d768/ch2/q64/ff1024/nhead12/win64/comp128/tokL1/ff128/wd0.1/clip0.5) = 2.0549 BPC (etgajrgq + nsz5hx1k). Fold pushed to canonical. Loss curve still descending at E40 with train/val gap ~0.23 -> underfit, not converged. Progression under locked budget: 2.2969 (canonical) -> 2.0549 (sweep winner fold). Old pre-budget progression (30M chars): 3.493 -> ... -> 1.8833 (window-warmup) — all superseded by the 10M commit.",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "Iter-20 (v44, in flight): MTP (multi-token prediction) aux heads on the token decoder (mtp_depth=2, predict char at +2/+3, weight 0.5 each) on top of the folded sweep-winner config. The run is UNDERTRAINED at 3.6k steps, so per-step supervision (modded-nanogpt rec 53/60/88) is the right lever, NOT more compute. Aux CE gated to training=True so val/loss stays comparable.",
+    "PRIMARY GOAL: EXHAUST THE BUDGET. Find the lowest BPC achievable at the locked 10M/512/256/bs384 budget. Every iteration must either improve BPC under this budget or justify the config on time-to-convergence — NEVER escape the budget by inflating compute.",
+    "If MTP helps: consider stacking gated value-skip (record 55) from compressor output to chunk-decoder output — the hierarchical heir of the speedrun skip-connection line.",
+    "Architecture tuning is OPEN within caps (token_dec_layers<=2, token_dec_dim_ff<=256, chunk_dec_layers<=8, chunk_dec_dim_ff<=2048): tune mtp_depth/mtp_weight, chunk_size, d_model, nhead, quantized_dim, compressor_emb_dim, window-warmup shape, lr, weight_decay. These are the real BPC levers under the fixed budget.",
+    "Re-enable the online W&B sweep over architecture params (d_model/chunk_dec_layers/chunk_size/lr) once v44 is green.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}
