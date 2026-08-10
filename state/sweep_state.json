@@ -1,0 +1,68 @@
+{
+  "sweep_id": "2rdefl3u",
+  "created_at": "2026-08-10T10:13:06Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": 2.2873,
+    "val_loss": 1.5854,
+    "run": "vaot6mtj (pleasant-sweep-71)",
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_dec_dropout": 0.1,
+      "chunk_nhead": 8,
+      "chunk_size": 4,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "compressor_emb_dim": 32,
+      "compressor_causal": true,
+      "token_dec_layers": 1,
+      "token_dec_dim_ff": 1024,
+      "token_dec_nhead": 4,
+      "token_dec_dropout": 0.1,
+      "token_emb_dim": 128,
+      "token_local_window": 32,
+      "token_wd": 0.01,
+      "weight_decay": 0.01,
+      "lr": 0.0013466083362388848,
+      "batch_size": 32,
+      "block_size": 256,
+      "stride": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 1024,
+      "min_lr_ratio": 0.1,
+      "comp_lr_mult": 2,
+      "prior_aux_weight": 0.75,
+      "prior_heavy_epochs": 4,
+      "lambda_snap": 0.02,
+      "lambda_hist_kl": 0.005,
+      "refiner_target_scale": 0.35,
+      "refiner_l2": 0.0003,
+      "seed": 1337
+    },
+    "observed_at": "2026-08-10T13:57:43Z"
+  },
+  "stagnation": {
+    "detected": true,
+    "since_run": 71,
+    "best_bpc_when_detected": 2.2873
+  },
+  "kernels_running": [
+    "ananiyajemberu/perpos-gpu-sweep-a",
+    "ananiyajemberu/perpos-gpu-sweep-b",
+    "ferebahiru/perpos-gpu-sweep-a",
+    "ferebahiru/perpos-gpu-sweep-b",
+    "zaldex/perpos-gpu-sweep-a",
+    "zaldex/perpos-gpu-sweep-b",
+    "elsabahiru/perpos-gpu-sweep-a"
+  ],
+  "notes": [
+    "Sweep 3sns1b3n drained 88 runs (run_cap 1000). Best vaot6mtj val_loss=1.5854 -> 2.2873 BPC at epochs=27 (685 steps, ~8356s). Still ABOVE baseline current_best (1.8833 BPC) - no fold this cycle; winning arch config recorded above for future reference.",
+    "Best not improved since run 71 (~17 runs later, several still running). Top-5 arms all cluster: d_model=1024, chunk_dec_layers=6, batch_size=32, lr~0.001-0.0014, weight_decay=0.01, comp_emb 32/64, quantized_dim 128. Stagnation detected; narrowed search.",
+    "All 88 runs respect budget: limit_chars=10M, stride=256, block=256 (GPU kernel own default, <= committed 512), batch<=96 (kernel own default, <= committed 384). No compute inflation; no run rejected.",
+    "Successor sweep 2rdefl3u created (bayes, metric val/ce_final, run_cap 1000): narrowed around best arms - d_model {768,1024}, chunk_dec_layers {4,6}, batch {32,48}, lr [0.0008,0.0015], weight_decay {0.001,0.01}, compressor_emb_dim {64}, token_local_window {64}, chunk_local_window {null,16}, lambda_snap {0.02,0.05}, quantized_dim {128,256}. Repo variable SWEEP_WANDB_SWEEP_ID already set to 2rdefl3u by prior steer (env resolves correctly).",
+    "Enqueued empty successor 3ng4735y also exists (PENDING, 0 runs) - superseded by 2rdefl3u; left untouched.",
+    "Kaggle kernel status API returned 400s (per-account token mismatch / private kernels); kernels_running list carried over from prior state. GPU sweep kernels continue to join via orchestrator; this skill never pushes."
+  ]
+}
