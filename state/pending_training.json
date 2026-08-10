@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 21,
+  "iteration": 21,
+  "goal": "Iter-21 (v29): RE-ENABLED online W&B sweep per baseline direction #4. Fixed orphaned sweep_config wiring (was falling back to a 2-param sweep), wandb.agent now uses local sweep_id, RUN_MODE respects module level. Sweep space widened: ch (chunk_size) [2,4,8], quantized_dim [64,128,256], compressor_emb_dim [64,96,128], within caps, batch locked 384. 12 trials ~2.6h. Target: beat 2.2969 BPC (v28) under the locked 10M/512/256/384 budget.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T07:40:00Z",
+  "kernel_version": 29
 }
