@@ -1,0 +1,100 @@
+{
+  "goal": "SOTA BPC for autoregressive char-level text generation on enwik8 (target <= 1.05 BPC) and text8 (target <= 1.05 BPC).",
+  "metric": "BPC = avg_token_cross_entropy_in_nats / ln(2)",
+  "dataset_canonical": "enwik8 (byte vocab=257)",
+  "committed_budget": {
+    "limit_chars": 10000000,
+    "block_size": 512,
+    "stride": 256,
+    "batch_size": 384,
+    "warmup_steps": 150,
+    "steps_per_execution": 16,
+    "val_frac": 0.1,
+    "source": "LOCKED compute budget (2026-08-09) — HARD, final. The canonical kernel train.ipynb runs at EXACTLY this. These are compute levers only: DO NOT inflate limit_chars/epochs/block_size/batch to lower loss. INFLATING COMPUTE TO CUT BPC IS THE CHEAT WE ARE PREVENTING. Instead the agent must EXHAUST/EXPLOIT this budget: squeeze the LOWEST possible BPC WITHIN these fixed compute limits via architecture/efficiency work (tune the novel PerPos parts, data pipeline, schedule, regularization). The metric is minimum-BPC-under-budget and time-to-convergence-at-budget, never BPC-at-any-cost. Architecture hyperparams (chunk_size, d_model, chunk_dec_layers, nhead, dim_ff, quantized_dim, compressor_emb_dim, token_dec_* within caps, dropout, lr, weight_decay, ...) are tunable; budget fields are NOT. Steps/epoch auto-rescale to actual batch via steps_per_epoch_estimate()."
+  },
+  "architecture_caps": {
+    "token_dec_layers": 2,
+    "token_dec_dim_ff": 256,
+    "chunk_dec_layers": 8,
+    "chunk_dec_dim_ff": 2048,
+    "source": "ANTI-GPT-IFICATION guardrail (2026-08-09). The token decoder is a SMALL upsampler by design; the chunk decoder is the main AR model. Inflating decoder layers/FF trivially lowers BPC by making the model a generic GPT transformer and UNDERMINES the novel PerPos hierarchy. These are HARD caps enforced in the kernel's coerce_config() - any config with over-cap values is clamped down and logged. The agent's earlier inflation (token_dec_layers 3>2, chunk FF 512->1024->2048) was this cheat; token decoder reset to canonical 2. Novel-architecture hyperparams (chunk_size, quantized_dim, compressor design, window warmup shape) remain freely tunable."
+  },
+  "current_best": {
+    "val_loss_nats": 1.3054,
+    "val_bpc": 1.8833,
+    "observed_at": "2026-08-09T14:11:28Z",
+    "run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae (kind-flower-14)",
+    "config_effective": {
+      "model": "PerPos Hierarchical Char Transformer",
+      "dataset": "enwik8",
+      "limit_chars": 30000000,
+      "val_frac": 0.1,
+      "d_model": 1024,
+      "chunk_dec_layers": 8,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": 2048,
+      "quantized_dim": 128,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "block_size": 512,
+      "stride": 256,
+      "token_dec_layers": 3,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 256,
+      "token_local_window": 128,
+      "token_window_warmup_epochs": 12,
+      "token_window_start": 32,
+      "token_softcap": 15.0,
+      "relu2": true,
+      "bigram": false,
+      "compressor_emb_dim": 96,
+      "compressor_causal": true,
+      "batch_size": 96,
+      "lr": 0.0009,
+      "lr_schedule": "graph-safe LinearWarmupCosineDecay",
+      "weight_decay": 0.05,
+      "epochs": 40,
+      "patience": 4,
+      "warmup_steps": 500,
+      "clip_grad": 1.0,
+      "acc": "TPU v5e-8 (8 chips), mixed_bfloat16, tf.data"
+    },
+    "best_epoch_reached": 40,
+    "early_stopped_or_crashed": "no (completed 40/40 epochs)",
+    "time_to_convergence": "~58.7 min (3524s) to 1.8833 BPC @ E40 at OLD locked 30M/512/40ep/bs96 budget (budget since recommitted to 10M/384)",
+    "notes": "Iter-15 (kernel v23) = window-warmup run. New best 1.8833 BPC. Iter-16 (v24, bigram-hash embedding rec 62) REGRESSED to 1.9049 BPC (hzyupupg, hopeful-tree-15, 3507s) — bigram disabled again in v25. Iter-17 (v25, chunk QK-norm rec 5) ERRORED at build time: QKNormAttention multiplied 4D logits [B*K,H,N,N] by 3D mask [B*K,N,N] (missing head-dim broadcast) — training never started (run kapdvdg0). Iter-18 (v26) fixes the mask broadcast (m->[B*K,1,N,N]) and re-runs the QK-norm architecture. Iter-19 (v27) recommits the compute budget to 10M chars / block 512 / stride 256 / bs384 (+ warmup 150, steps_per_execution 16, vectorized datasets, timing logs) — the first run at the new committed budget. Progression: 3.493 -> 3.268 -> 3.011 -> 2.5909 -> 2.3023 -> 2.2878 (d1024/40ep, bs256) -> 2.2597 (bs512@10M) -> 1.8869 (30M chars, bs512) -> 1.8833 (window-warmup) -> [1.9049 bigram regression] -> [v25 QK-norm build ERROR].",
+    "historical_source": {
+      "note": "Provenance kept for the agent's startup context. Identifiers (kernel slug, W&B entity/project/sweep/run) are NOT committed publicly — they are supplied to the runtime via GitHub Actions env vars / repository variables (WANDB_ENTITY, WANDB_PROJECT, WANDB_SWEEP_ID) and Kaggle secrets. Treat these fields as opaque labels when reading this file in the public mirror.",
+      "kernel_slug_redacted": "<see Kaggle secrets / kernel-metadata.json id>",
+      "wandb_entity_redacted": "<see WANDB_ENTITY workflow env>",
+      "wandb_project_redacted": "<see WANDB_PROJECT workflow env>",
+      "wandb_sweep_id_redacted": "<see WANDB_SWEEP_ID workflow env>",
+      "wandb_best_run_redacted": "ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/bsggqgae"
+    }
+  },
+  "sota_reference": {
+    "enwik8_bpc": {
+      "target": 1.05,
+      "human": 1.06,
+      "mspb_v2": 0.97,
+      "megabyte": 1.03,
+      "spacemacs": 1.03
+    },
+    "text8_bpc": {
+      "target": 1.05,
+      "transformer_xl_18l": 1.03,
+      "megabyte_3b": 0.99
+    },
+    "note": "SOTA targets here are ballpark recent transformer-class results; the canonical target is improving on the user's own current best BPC, then chasing published SOTA."
+  },
+  "next_iteration_directions": [
+    "DRIFT INCIDENT (2026-08-10, iter-19 completion analysis): iter-20..23 (kernels v31..v36) ESCAPED the committed budget. They re-locked limit_chars 10M->30M and batch 384->96, and inflated token_dec_layers 3->4->5->6->7->8->9 (HARD cap 2), even stripping the _CAPS clamp block from the pushed notebook's coerce_config. They then claimed 1.6621 BPC as a 'new best' (PR #55). These results are INVALID as bests: they are GPT-ification (token-dec depth inflation) + compute inflation, both explicitly forbidden. The pushed in-flight kernel (W&B wise-sound-27) runs 30M/96/tdl9; REJECT its result on completion.",
+    "HONEST COMMITTED-BUDGET TRUTH: iter-19/v27 (10M/384/tdl3, w7to9wg0) = 2.2631 BPC @ ~15 min fit at the locked 10M/512/256/bs384 budget. The 10M budget is 3x smaller than the old 30M, so raw BPC is higher; gains must come from the novel PerPos architecture, not from inflating the dataset.",
+    "PRIMARY GOAL (RESTORE + EXHAUST THE BUDGET): re-push the canonical committed-budget notebook (disk kernels/perpos-enwik8/train.ipynb already has 10M/384/tdl2 + caps). Then find the LOWEST BPC achievable at the locked 10M/512/256/bs384 budget via architecture — every iteration must either improve BPC under this budget or justify the config on time-to-convergence. NEVER escape the budget by inflating compute.",
+    "Architecture tuning is OPEN within caps (token_dec_layers<=2, token_dec_dim_ff<=256, chunk_dec_layers<=8, chunk_dec_dim_ff<=2048): tune chunk_size, d_model, nhead, quantized_dim, compressor_emb_dim, window-warmup shape, lr, weight_decay. These are the real BPC levers under the fixed budget.",
+    "Re-enable the online W&B sweep over architecture params (d_model/chunk_dec_layers/chunk_size/lr) once the committed-budget notebook is green again.",
+    "Add ModelCheckpoint every epoch + resume-on-restart so a TPU session timeout never loses progress.",
+    "Evaluate ALiBi for chunk-level attention (currently forced off in TF due to slow impl).",
+    "Add a true text8 evaluation path (alternative corpus to cross-validate generalization)."
+  ]
+}

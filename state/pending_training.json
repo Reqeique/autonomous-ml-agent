@@ -1,9 +1,10 @@
 {
   "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
   "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
-  "iter": 5,
-  "iteration": 5,
-  "goal": "Revert iter-4 cosine LR regression (OperatorNotAllowedInGraphError in LinearWarmupCosineSchedule); push known-good graph-safe LinearWarmupSchedule notebook (kernel v11) to restore canonical kernel to green; confirm clean 5-epoch run and W&B logging at val_bpc~3.268",
-  "wandb_run": "",
-  "pushed_at": "2026-08-08T20:05:00Z"
+  "iter": 24,
+  "iteration": 24,
+  "goal": "Iter-24 (kernel in flight, W&B wise-sound-27): token-dec 9L/1152 probe pushed by concurrent dispatch-c7a5de (PR #55). GUARDRAIL FLAG: config runs 30M/96 with token_dec_layers=9 (hard cap=2) at a RE-LOCKED 30M budget - GPT-ification cheat, NOT a valid BPC win. On completion: reject this result as best; the committed budget (10M/384, token_dec_layers<=2) is still the locked budget and its current best is 2.2631 BPC (w7to9wg0). Re-run at committed budget with architecture tuning only.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-10T04:30:48Z",
+  "kernel_version": 36
 }
