@@ -35,7 +35,7 @@ jobs:
       issues: write
       actions: write
     concurrency:
-      group: opencode-ml-sweep
+      group: opencode-ml-agent
       cancel-in-progress: false
     timeout-minutes: 50
     env:
