@@ -1,0 +1,28 @@
+{
+  "sweep_id": "3sns1b3n",
+  "created_at": "2026-08-10T10:13:06Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": null,
+    "run": null,
+    "config": null,
+    "observed_at": null
+  },
+  "stagnation": {
+    "detected": false,
+    "since_run": 0,
+    "best_bpc_when_detected": null
+  },
+  "kernels_running": [
+    "ananiyajemberu/perpos-gpu-sweep-a",
+    "ananiyajemberu/perpos-gpu-sweep-b",
+    "ferebahiru/perpos-gpu-sweep-a",
+    "ferebahiru/perpos-gpu-sweep-b",
+    "zaldex/perpos-gpu-sweep-a",
+    "zaldex/perpos-gpu-sweep-b",
+    "elsabahiru/perpos-gpu-sweep-a"
+  ],
+  "notes": [
+    "Initialized 2026-08-10: 7 kernels / ~14 T4 agents draining sweep 3sns1b3n (run_cap 1000)."
+  ]
+}
