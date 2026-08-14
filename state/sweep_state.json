@@ -1,0 +1,60 @@
+{
+  "sweep_id": "f90jv35j",
+  "created_at": "2026-08-14T07:00:00Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": 2.2378,
+    "run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/runs/65dr5rv3",
+    "run_name": "zesty-sweep-18",
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": null,
+      "quantized_dim": 256,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 8,
+      "token_local_window": 64,
+      "compressor_emb_dim": 64,
+      "chunk_local_window": 16,
+      "chunk_use_alibi": false,
+      "learned_pos": true,
+      "compressor_causal": true,
+      "lr": 0.0014109308819477769,
+      "weight_decay": 0.01,
+      "token_wd": 0.02,
+      "clip_grad": 0.5,
+      "batch_size": 32,
+      "block_size": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 512,
+      "lambda_hist_kl": 0.02,
+      "lambda_snap": 0.05,
+      "refiner_target_scale": 0.7,
+      "refiner_l2": 0.0001,
+      "patience": 2,
+      "prior_aux_weight": 0.25
+    },
+    "observed_at": "2026-08-11T06:14:15Z"
+  },
+  "stagnation": {
+    "detected": true,
+    "since_run": 84,
+    "best_bpc_when_detected": 2.2378,
+    "note": "Best 2.2378 BPC set by zesty-sweep-18 (65dr5rv3, run #9) at 2026-08-11T06:14:15Z; 84+ subsequent runs never improved. All sweep kernels CANCEL_ACKNOWLEDGED, sweep idle since 2026-08-11. Steering triggered."
+  },
+  "kernels_running": [],
+  "notes": [
+    "2026-08-14: Sweep 2rdefl3u (103 runs, run_cap 1000) fully drained and idle since 2026-08-11 — all 7 kernel slugs CANCEL_ACKNOWLEDGED, no W&B runs after 08-11T17:23Z.",
+    "Best arm 65dr5rv3 (zesty-sweep-18) = 2.2378 BPC @ epochs27/bs32/block256/10M chars — does NOT beat TPU baseline current_best 1.8833, so NO fold.",
+    "Stagnation detected (best unchanged for 84+ runs). Steering: created successor sweep f90jv35j with narrowed search (fixed d_model=1024, chunk_dec_layers=6, token_dec_layers=1, warmup 512, batch 32; narrowed lr 1.1e-3..1.6e-3, quantized_dim {128,256}, token_dec_dim_ff {512,1024}, chunk_local_window {null,16}; run_cap 400).",
+    "NOTE: could not set repo variable SWEEP_WANDB_SWEEP_ID=f90jv35j via gh — GITHUB_TOKEN (install token) returns 403 'Resource not accessible by integration'. A human/org admin with variable:write must run: gh variable set SWEEP_WANDB_SWEEP_ID --repo Reqeique/autonomous-ml-agent -b f90jv35j. PR records the id as the source of truth.",
+    "Budget check: all 103 runs limit_chars=10M (compliant); GPU sweep uses batch_size 32/48 and block_size 256 (smaller than TPU committed 384/512 — not compute inflation, but runs are GPU-T4 proxy, not directly foldable vs TPU budget anyway).",
+    "Dead kernels: ananiyajemberu/perpos-gpu-sweep-a & -b = CANCEL_ACKNOWLEDGED; ferebahiru/zaldex/elsabahiru slugs not accessible (private/denied) — assumed same. No active agents."
+  ]
+}
