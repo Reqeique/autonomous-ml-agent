@@ -1,0 +1,11 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 47,
+  "iteration": 22,
+  "iter": 22,
+  "wandb_entity": "ananiyajemberu21",
+  "wandb_project": "ml-playground-perpos-bpc",
+  "goal": "Iter-22 (v47): single arch change — chunk_dec_dim_ff 1024->1536 (within cap 2048) to boost chunk-decoder FF expressivity of the main AR model, addressing iter-21/v45 non-converged curve (still descending 1.4435->1.4207 @ E40). All else = v45 sweep-winner (d768/ch2/q64/ff1536/nhead12/local64/comp128/tokenL1/MTP depth2 w0.25). Target: beat v45 2.0496 BPC at locked 10M/512/256/bs384 budget.",
+  "pushed_at": "2026-08-16T04:05:00Z"
+}
