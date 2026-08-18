@@ -1,0 +1,8 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 49,
+  "iteration": 23,
+  "pushed_at": "2026-08-18T03:55:00Z",
+  "wandb_run": "pending",
+  "goal": "Iter-23: widen PerPos chunk-decoder local attention 64->128 chunks at locked 10M/512/256/bs384 budget. Baseline v48 ff2048 (2.0084 BPC). Single-lever arch tweak; measure receptive-field effect."
+}
