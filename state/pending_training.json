@@ -1,0 +1,10 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 50,
+  "iteration": 24,
+  "pushed_at": "2026-08-19T04:00:18Z",
+  "goal": "iter-24: sync committed notebook to live v48 winner (ff2048, local128) + ONE architecture tweak: quantized_dim 64->128 (double compressor embedding capacity; 30M-best used qdim128, 768%128==0). Target: beat iter-23's 1.9771 BPC under the locked 10M/512/256/bs384 budget.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (new run, name TBD after start)",
+  "budget": "LOCKED 10M/512/256/bs384/warmup150/spe16/epochs40 (unchanged)",
+  "agent_ip": "20.9.183.53"
+}
