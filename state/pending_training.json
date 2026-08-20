@@ -1,0 +1,9 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 51,
+  "iteration": 25,
+  "pushed_at": "2026-08-20T04:30:00Z",
+  "goal": "iter-25: sync committed notebook to live v50 winner (ff2048, qdim128) + ONE architecture tweak: chunk_local_window 128->256 (full causal over 256 chunks; 64->128 gained 0.031 BPC at zero extra attention FLOPs). Target: beat iter-24 1.9768 BPC at locked 10M/bs384 budget.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (TBD)",
+  "baseline_context": "iter-24 (v50) = 1.9768 BPC @ 40ep/1063s (new under-budget best). Local-window trend: 64->128 = 2.0084->1.9771; qdim64->128 = +0.0003 only. Next lever: window 128->256 (free FLOPs, mask-only)."
+}
