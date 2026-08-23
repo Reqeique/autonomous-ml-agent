@@ -134,7 +134,7 @@ jobs:
               prompt,
               max_iterations: '1',
               model: 'nvidia/z-ai/glm-5.2',
-              fallback_model: 'opencode/deepseek-v4-flash-free'
+              fallback_model: 'opencode/x-preview-f-free'
             };
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,

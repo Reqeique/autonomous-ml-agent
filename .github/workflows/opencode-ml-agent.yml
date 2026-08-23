@@ -21,7 +21,7 @@ on:
       fallback_model:
         description: 'Fallback model when primary is rate-limited'
         required: false
-        default: 'opencode/deepseek-v4-flash-free'
+        default: 'opencode/x-preview-f-free'
 
 permissions: {}
 
@@ -128,7 +128,7 @@ jobs:
           # drives the chain (not the agent) because opencode's internal 429
           # retry loop blocks the agent from self-redispatching.
           PRIMARY_MODEL: ${{ github.event.inputs.model || 'nvidia/z-ai/glm-5.2' }}
-          FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'opencode/deepseek-v4-flash-free' }}
+          FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'opencode/x-preview-f-free' }}
           LAST_RESORT_MODEL: nvidia/minimaxai/minimax-m3
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
