@@ -17,11 +17,11 @@ on:
       model:
         description: 'Primary model (provider/model-id)'
         required: false
-        default: 'nvidia/z-ai/glm-5.2'
+        default: 'opencode/x-preview-f-free'
       fallback_model:
         description: 'Fallback model when primary is rate-limited'
         required: false
-        default: 'opencode/x-preview-f-free'
+        default: 'opencode/big-pickle'
 
 permissions: {}
 
@@ -127,8 +127,8 @@ jobs:
           # Model chain: primary -> fallback -> last-resort. The workflow
           # drives the chain (not the agent) because opencode's internal 429
           # retry loop blocks the agent from self-redispatching.
-          PRIMARY_MODEL: ${{ github.event.inputs.model || 'nvidia/z-ai/glm-5.2' }}
-          FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'opencode/x-preview-f-free' }}
+          PRIMARY_MODEL: ${{ github.event.inputs.model || 'opencode/x-preview-f-free' }}
+          FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'opencode/big-pickle' }}
           LAST_RESORT_MODEL: nvidia/minimaxai/minimax-m3
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -133,8 +133,8 @@ jobs:
             const inputs = {
               prompt,
               max_iterations: '1',
-              model: 'nvidia/z-ai/glm-5.2',
-              fallback_model: 'opencode/x-preview-f-free'
+              model: 'opencode/x-preview-f-free',
+              fallback_model: 'opencode/big-pickle'
             };
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
