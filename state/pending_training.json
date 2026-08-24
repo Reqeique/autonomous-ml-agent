@@ -1,0 +1,10 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 57,
+  "iteration": 27,
+  "pushed_at": "2026-08-24T04:15:00Z",
+  "goal": "iter-27 (v57): ONE architecture lever - d_model 768->1024 with chunk_nhead 16 (dk=32 kept); window lever exhausted at 256=full causal. Also fixes kernelspec.display_name so completed runs are no longer falsely marked ERROR by nbformat post-validation. Target: beat iter-25 1.9542 BPC at locked 10M/bs384 budget.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (TBD)",
+  "baseline_context": "iter-25 (v51/v56 run ts1w53i6 quiet-dragon-28) = 1.95419 BPC @ 40ep/1075s = new under-budget best (beat v50 1.9768). Local-window trend exhausted: 64->128 +0.031, 128->256 +0.023, 256=full causal within block. Next lever: backbone capacity d1024 (dominant factor historically; OOM fallback = d896+ff1536 within caps)."
+}
