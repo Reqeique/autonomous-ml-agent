@@ -1,0 +1,62 @@
+{
+  "sweep_id": "54pkjxrp",
+  "created_at": "2026-08-23T05:34:00Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": 2.2378,
+    "run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/runs/65dr5rv3",
+    "run_name": "zesty-sweep-18 (gen-2, sweep 2rdefl3u); gen-3 best is faithful-sweep-25 abux6qr8 @ 2.2661 BPC",
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": null,
+      "quantized_dim": 256,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 8,
+      "token_local_window": 64,
+      "compressor_emb_dim": 64,
+      "chunk_local_window": 16,
+      "chunk_use_alibi": false,
+      "learned_pos": true,
+      "compressor_causal": true,
+      "lr": 0.0014109308819477769,
+      "weight_decay": 0.01,
+      "token_wd": 0.02,
+      "clip_grad": 0.5,
+      "batch_size": 32,
+      "block_size": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 512,
+      "lambda_hist_kl": 0.02,
+      "lambda_snap": 0.05,
+      "refiner_target_scale": 0.7,
+      "refiner_l2": 0.0001,
+      "patience": 2,
+      "prior_aux_weight": 0.25
+    },
+    "observed_at": "2026-08-11T06:14:15Z"
+  },
+  "stagnation": {
+    "detected": true,
+    "since_run": 151,
+    "best_bpc_when_detected": 2.2378,
+    "note": "Best 2.2378 BPC set by zesty-sweep-18 (65dr5rv3) at 2026-08-11T06:14:15Z; ~151 subsequent runs across gen-2 drain (103) and gen-3 qrkfjk9v (48) never improved. Gen-3 best 2.2661 (faithful-sweep-25). Steering re-triggered (successor 54pkjxrp)."
+  },
+  "kernels_running": [],
+  "notes": [
+    "2026-08-14: Sweep 2rdefl3u (103 runs, run_cap 1000) fully drained and idle since 2026-08-11 — all 7 kernel slugs CANCEL_ACKNOWLEDGED, no W&B runs after 08-11T17:23Z.",
+    "2026-08-15 (monitor cycle): re-pulled W&B — 2rdefl3u unchanged at 103 runs, still idle; successor f90jv35j still PENDING with 0 runs (starved because SWEEP_WANDB_SWEEP_ID repo variable still points at 2rdefl3u).",
+    "2026-08-17 (monitor cycle): re-pulled W&B — 2rdefl3u still 103 runs (88 finished, 15 crashed), no fold (best 2.2378 BPC does NOT beat baseline 1.8833 BPC); 3sns1b3n (original, 124 runs) drained best 2.278 BPC; successor f90jv35j still PENDING 0 runs. FIXED SWEEP_WANDB_SWEEP_ID repo variable 2rdefl3u -> f90jv35j (via PRIVATE_REPO_PAT, GITHUB_TOKEN lacked actions-variable write). Next orchestrator sweep-kernel push joins f90jv35j. WANDB_SWEEP_ID left unset (deliberate).",
+    "2026-08-20/23 (monitor cycles): f90jv35j remained starved at 0 runs; monitor PRs #100/#103/#106 opened.",
+    "2026-08-23 (THIS cycle): discovered gen-3 sweep qrkfjk9v (run_cap 48, FINISHED): bayes over chunk_dec_layers {6,8,10} + lr [8e-4,1.4e-3] with everything else pinned to gen-2 winners; run by perpos-gpu-sweep-a/b (both now COMPLETE). Best 2.2661 BPC = faithful-sweep-25 (abux6qr3->abux6qr8), all 48 runs budget-clean (limit_chars=10M, epochs<=27, max_runtime_s=32400). NOTE: gen-3 sampled chunk_dec_layers=10 > HARD CAP 8 (kernel coerce_config clamps on the canonical TPU kernel; GPU runs trained unclamped) — chL=10 arms are not transferable as-is to the canonical config.",
+    "2026-08-23 (steer): stagnation confirmed (~151 runs / 12 days without beating 2.2378). Created successor sweep 54pkjxrp (bayes, hyperband eta3, metric val/ce_final, run_cap 240) narrowed around merged gen-2+gen-3 winners: d1024/qdim256/comp64/tokL1/tokEmb128/tokFF1024/tokLW64/ch4/nhead8/wd0.01/tokwd{0.01,0.02}/warmup512/epochs27 fixed; varying lr [1.15e-3,1.45e-3], chunk_dec_layers {7,8} (CAP-CLAMPED from observed 10), chunk_local_window {null,16}, learned_pos {F,T} (gen disagreement), clip_grad {0.5,1}, compressor_emb_dim {48,64,96}, lambda_hist_kl {0.005,0.01,0.02}, lambda_snap {0.02,0.05}, refiner_target_scale {0.4,0.5,0.7}, min_lr_ratio {0.05,0.1}, patience {1,2}, prior_heavy_epochs {2,4,6}, prior_ramp_epochs {1,2}, freeze_refiner_epochs {1,2}, token_lr_mult {0.35,0.5,0.7}. SWEEP_WANDB_SWEEP_ID repo variable repointed f90jv35j -> 54pkjxrp. WANDB_SWEEP_ID left unset (deliberate). Config persisted in private repo main + public PR.",
+    "NO FOLD: gen-3 best 2.2661 BPC does not beat old sweep best 2.2378 nor baseline current_best 1.8833 BPC. No canonical-config PR warranted this cycle.",
+    "Narrowed successor config persisted at kernels/perpos-gpu-sweep/_private_live/sweep_config.json (this commit + public PR)."
+  ]
+}
