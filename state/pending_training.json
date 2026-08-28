@@ -1,0 +1,8 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 61,
+  "iteration": 23,
+  "goal": "Iter-23 (v61): gated value-skip (modded-nanogpt rec 55) — gate-add pre-position compressor content into chunk-transformer output before token upsampler. Gate init -5 (sigmoid≈0.007) => starts near-identical to 1.9542 BPC baseline (quiet-dragon-28), so improvement is attributable to learning the skip. Plus CRITICAL INFRA FIX: kernelspec.display_name (missing caused v60 to ERROR at nbformat validation after push). Single architecture change at locked 10M/512/256/bs384 budget. Target: beat 1.9542 BPC.",
+  "pushed_at": "2026-08-28T15:30:00Z",
+  "wandb_run": "ananiyajemberu21/ml-playground-perpos-bpc (v61, kernel QUEUED/RUNNING at handoff)"
+}
