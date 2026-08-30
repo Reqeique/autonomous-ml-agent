@@ -1,0 +1,10 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 63,
+  "iteration": 25,
+  "iter": 25,
+  "goal": "Iter-25 (v63): single architecture capacity bump d_model 768->896 (896 added to allowed_dmodel) at the LOCKED 10M/512/256/bs384 budget. Discards the regressive value-skip line (v62 1.9644 BPC vs committed-config best 1.9542). Target: beat committed best 1.9542 BPC (quiet-dragon-28) and the under-budget anchor with a still-descending E40 curve -> capacity-limited.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (v63, QUEUED at handoff)",
+  "pushed_at": "2026-08-30T09:11:00Z"
+}
