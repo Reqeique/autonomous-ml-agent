@@ -1,0 +1,8 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 64,
+  "pushed_at": "2026-08-31T00:00:00Z",
+  "wandb_run": "ananiyajemberu21/ml-playground-perpos-bpc (v64, QUEUED at handoff)",
+  "goal": "Iter-26 (v64): d_model 896->1024 single capacity bump (nhead 16, ff 2048, window 256 held from v63) at LOCKED 10M/512/256/bs384 budget. v63 (d896) hit 1.9786 BPC un-converged; continue the proven capacity lever. Target: beat v63 1.9786 BPC under budget.",
+  "iteration": 26
+}
