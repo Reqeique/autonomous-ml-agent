@@ -1,0 +1,8 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 65,
+  "pushed_at": "2026-09-01T00:00:00Z",
+  "wandb_project": "ml-playground-perpos-bpc",
+  "goal": "Iter-22: re-establish the iter-21 (v45) anchor at the committed 10M/512/256/bs384 budget under fresh TPU quota (config == committed train.ipynb synced to v45: d768/ch2/q64/ff1024/nhead12/local64/comp128/tokenL1/MTP w0.25). Target: beat 2.0496 BPC. Architecture-only lever; no compute inflation.",
+  "iteration": 22
+}
