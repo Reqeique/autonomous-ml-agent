@@ -133,7 +133,7 @@ jobs:
             const inputs = {
               prompt,
               max_iterations: '1',
-              model: 'opencode/x-preview-f-free',
+              model: 'opencode/muse-spark-1.2-contributor-free',
               fallback_model: 'opencode/big-pickle'
             };
             await github.rest.actions.createWorkflowDispatch({

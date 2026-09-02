@@ -17,7 +17,7 @@ on:
       model:
         description: 'Primary model (provider/model-id)'
         required: false
-        default: 'opencode/x-preview-f-free'
+        default: 'opencode/muse-spark-1.2-contributor-free'
       fallback_model:
         description: 'Fallback model when primary is rate-limited'
         required: false
@@ -138,9 +138,9 @@ jobs:
           # Model chain: primary -> fallback -> last-resort. The workflow
           # drives the chain (not the agent) because opencode's internal 429
           # retry loop blocks the agent from self-redispatching.
-          PRIMARY_MODEL: ${{ github.event.inputs.model || 'opencode/x-preview-f-free' }}
+          PRIMARY_MODEL: ${{ github.event.inputs.model || 'opencode/muse-spark-1.2-contributor-free' }}
           FALLBACK_MODEL: ${{ github.event.inputs.fallback_model || 'opencode/big-pickle' }}
-          LAST_RESORT_MODEL: nvidia/minimaxai/minimax-m3
+          LAST_RESORT_MODEL: nvidia/moonshotai/kimi-k3
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
