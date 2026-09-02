@@ -1,0 +1,62 @@
+{
+  "sweep_id": "z86wszrq",
+  "created_at": "2026-08-29T00:00:00Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": 2.2378,
+    "run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/runs/65dr5rv3",
+    "run_name": "zesty-sweep-18 (gen-2, sweep 2rdefl3u); no later generation (gen-3/4/4-rerun, ~294 new runs) has beaten it",
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": null,
+      "quantized_dim": 256,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 8,
+      "token_local_window": 64,
+      "compressor_emb_dim": 64,
+      "chunk_local_window": 16,
+      "chunk_use_alibi": false,
+      "learned_pos": true,
+      "compressor_causal": true,
+      "lr": 0.0014109308819477769,
+      "weight_decay": 0.01,
+      "token_wd": 0.02,
+      "clip_grad": 0.5,
+      "batch_size": 32,
+      "block_size": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 512,
+      "lambda_hist_kl": 0.02,
+      "lambda_snap": 0.05,
+      "refiner_target_scale": 0.7,
+      "refiner_l2": 0.0001,
+      "patience": 2,
+      "prior_aux_weight": 0.25
+    },
+    "observed_at": "2026-08-11T06:14:15Z"
+  },
+  "stagnation": {
+    "detected": true,
+    "since_run": 151,
+    "best_bpc_when_detected": 2.2378,
+    "note": "Record best 2.2378 BPC (zesty-sweep-18, 65dr5rv3, 08-11) still stands. ~394+ runs across gen-3/4/4-rerun without beating it. iv1dfhio confirmed 83 runs (64 finished, 19 crashed), ALL over-cap (chunk_dec_layers 10-14 > cap 8, token_dec_dim_ff 1024 > cap 256). Best iv1dfhio 2.2406 does NOT beat record 2.2378. Depth probe flat: cdl 10-14 BPC range 2.2406-2.2682, no benefit to >8 layers. z86wszrq cap-clean gen-5 successor remains PENDING (0 runs) — waiting for orchestrator agent to join it."
+  },
+  "kernels_running": [],
+  "notes": [
+    "2026-09-02 (THIS cycle) fresh monitor pass on iv1dfhio (gen-4-rerun): 83 runs, 64 finished, 19 crashed (23% crash rate). ALL 72 budget-clean runs are over-cap: chunk_dec_layers ∈ {10,11,12,13,14} (cap=8), token_dec_dim_ff=1024 (cap=256). Best iv1dfhio BPC = 2.2406 (treasured-sweep-5 x7vuvvus, 17342s, cdl=14, lr=1.37e-3). Does NOT beat pre-prevchar baseline 1.5511 (+0.6895 BPC delta) or current_best 1.8833 (+0.3573). Depth probe flat: cdl=10 best 2.2503, cdl=14 best 2.2406 — 0.0097 spread over 4 extra layers = decoder-inflation confirmed dead. Top-5 all converged on identical hyperparams (cdl=14, lr≈1.3e-3, freeze_refiner=2, prior_aux=0.5, token_lr_mult=0.5, comp_lr_mult=1.5) — bayes exploitation saturated.",
+    "2026-09-02 NO FOLD: best 2.2406 (iv1dfhio) / record 2.2378 (2rdefl3u) do not beat baseline current_best 1.8833 BPC. Even if they did, all are over-cap (would need clamping to cdl=8, tdff=256). No canonical-config PR, no baseline.json change.",
+    "2026-09-02 STEERING DECISION: z86wszrq (gen-5 cap-clean, chL {5,6,7}<=8, tokFF {128,256}<=256) remains PENDING with 0 runs. DO NOT create a new successor — the 4-cycle orphan problem persists (7+ successors starved at PENDING/0 because the orchestrator self-creates sweeps). z86wszrq's search space is well-designed: (a) caps respected, (b) opens chunk_size {2,3,4}, quantized_dim {128,192,256}, (c) lr band [1.15e-3,1.45e-3] from gen-2-4 convergence, (d) includes prior_aux/refiner/freeze params. The sweep_config.json already matches z86wszrq. HOLD until orchestrator agent joins it.",
+    "2026-08-29 (prior cycle): course correction — orphan xtpn165h abandoned, z86wszrq adopted as designated successor, SWEEP_WANDB_SWEEP_ID repointed to z86wszrq. See notes[3-4] for full history.",
+    "2026-08-28 (PR #124): monitor — sweeps frozen (zero new runs since 08-24T18:56Z), hold z86wszrq, no fold.",
+    "2026-08-26 (PR #119): monitor — zero new runs, hold z86wszrq, no fold; rejected 11 wbctbhvo runs for runtime inflation (36.4-41.8ks > 32.4ks cap).",
+    "2026-08-25 (PR #117): analyzed gen-4 (wbctbhvo+iv1dfhio) — depth inflation dead (~400 runs), adopted z86wszrq as cap-clean successor.",
+    "2026-08-14: Sweep 2rdefl3u (103 runs) fully drained and idle."
+  ]
+}
