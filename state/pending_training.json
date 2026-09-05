@@ -1,0 +1,32 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 68,
+  "iteration": 29,
+  "goal": "Iter-29 (v68): token_dec_dim_ff 128->256 @ cap + sync d_model 1024/token_L2 from v67 (1.9872 BPC) at LOCKED 10M/512/256/bs384",
+  "pushed_at": "2026-09-05T07:35:08Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (v68 QUEUED)",
+  "budget": "10M/512/256/bs384 locked",
+  "prev_best_bpc": 1.98722,
+  "prev_best_val_nats": 1.37744,
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "arch_tweak": "token_dec_dim_ff 128->256 (CAP 256) + sync d_model 768->1024, chunk_nhead 12->16, token_dec_layers 1->2 from v67",
+  "prev_run": {
+    "kernel_version": 67,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/5j9aggt2",
+    "wandb_run_name": "generous-dawn-39",
+    "val_bpc": 1.98722,
+    "val_loss_nats": 1.37744,
+    "epochs_run": 35,
+    "early_stopped": "yes (patience 4, best E31 val 1.3774 -> stop E35)",
+    "fit_time_s": 1056.36,
+    "time_to_convergence": "1056s (~17.6 min) for 35ep (early stop); ~15.4s/epoch steady, 6.1 steps/s",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posFalse/mtp depth2 w0.25/lr9e-4/wd0.1/clip0.5"
+  },
+  "time_to_convergence_prev": "1056.4s over 35ep (best E31)",
+  "checks": {
+    "budget_locked": "10M/512/256/bs384",
+    "caps_ok": "chunk_L8<=8 chunk_FF2048<=2048 token_L2<=2 token_FF256<=256",
+    "ip": "52.250.243.36"
+  }
+}
