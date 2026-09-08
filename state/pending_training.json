@@ -1,0 +1,33 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 71,
+  "iteration": 32,
+  "goal": "Iter-32 (v71): sync to v70 winner (1.961 BPC) + mtp_weight 0.25->0.20 to probe MTP sweet spot at LOCKED 10M/512/256/bs384 (d1024/q128/ff2048/window256/qkTrue/learnedTrue/tokenL2/FF128). Single arch lever, caps ok, budget locked.",
+  "pushed_at": "2026-09-08T08:01:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (v71)",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "budget": "10M/512/256/bs384 locked",
+  "prev_best_bpc": 1.96113,
+  "prev_best_val_nats": 1.35935,
+  "prev_run": {
+    "kernel_version": 70,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/a7vy3d7r",
+    "wandb_run_name": "v70-learned-pos-true",
+    "val_bpc": 1.96113,
+    "val_loss_nats": 1.35935,
+    "epochs_run": 35,
+    "early_stopped": "yes (patience 4, best E31 1.3594 -> stop E35)",
+    "fit_time_s": 1094.9,
+    "time_to_convergence": "1094.9s (~18.2 min) for 35ep early-stop; ~15.4s/epoch steady, 111s sampling at E32",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.25/lr9e-4/wd0.1/clip0.5",
+    "status": "KernelWorkerStatus.COMPLETE",
+    "conclusion": "v70 learned_pos True beats v69 1.987->1.961 (-0.026 BPC). NEW best under committed budget. Next probe mtp_weight 0.20 to find optimum (0.35 regressed, 0.25 won)."
+  },
+  "arch_tweak": "mtp_weight 0.25->0.20 (aux CE weight) at d1024/q128/ff2048/window256/learnedTrue/tokenL2; sync stale committed (d768->1024, learned False->True, token L1->2) to parity with v70 winner",
+  "checks": {
+    "budget_locked": "10M/512/256/bs384",
+    "caps_ok": "chunk_L8<=8 chunk_FF2048<=2048 token_L2<=2 token_FF128<=256",
+    "ip": "172.182.195.178"
+  }
+}
