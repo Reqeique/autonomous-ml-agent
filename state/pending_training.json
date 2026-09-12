@@ -1,0 +1,33 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 72,
+  "iteration": 33,
+  "goal": "Iter-33 (v72): fix kernelspec display_name (nbconvert ERROR) + sync to v71 winner (1.9528 BPC) + mtp_weight 0.20->0.15 to probe MTP sweet spot at LOCKED 10M/512/256/bs384 (d1024/q128/ff2048/window256/qkTrue/learnedTrue/tokenL2/FF128). Single arch lever, caps ok, budget locked.",
+  "pushed_at": "2026-09-12T07:50:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (v72)",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "budget": "10M/512/256/bs384 locked",
+  "prev_best_bpc": 1.95285,
+  "prev_best_val_nats": 1.35361,
+  "prev_run": {
+    "kernel_version": 71,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/4ijadzwl",
+    "wandb_run_name": "devout-monkey-43",
+    "val_bpc": 1.95285,
+    "val_loss_nats": 1.35361,
+    "epochs_run": 34,
+    "early_stopped": "yes (patience 4, best E30 1.3536 -> stop E34)",
+    "fit_time_s": 1061.9,
+    "time_to_convergence": "1061.9s (~17.7 min) for 34ep early-stop; ~15.4s/epoch steady, 111s sampling at E32; best E30",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.20/lr9e-4/wd0.1/clip0.5",
+    "status": "KernelWorkerStatus.ERROR (nbconvert display_name missing, but training FULLY succeeded: 34/40 epochs, best 1.9528 BPC, weights saved)",
+    "conclusion": "v71 mtp 0.20 beats v70 1.961->1.9528 (-0.008 BPC). NEW best under committed budget. Kernelspec bug caused Kaggle ERROR status post-training; fixed in v72. Next probe mtp 0.15."
+  },
+  "arch_tweak": "mtp_weight 0.20->0.15 + kernelspec fix + sync d768->1024, nhead12->16, learned False->True, token L1->2 to parity with v71 winner",
+  "checks": {
+    "budget_locked": "10M/512/256/bs384",
+    "caps_ok": "chunk_L8<=8 chunk_FF2048<=2048 token_L2<=2 token_FF128<=256",
+    "ip": "20.98.142.51"
+  }
+}
