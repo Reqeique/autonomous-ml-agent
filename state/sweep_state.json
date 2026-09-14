@@ -1,0 +1,63 @@
+{
+  "sweep_id": "z86wszrq",
+  "created_at": "2026-08-28T00:00:00Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": 2.2378,
+    "run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/runs/65dr5rv3",
+    "run_name": "zesty-sweep-18 (gen-2, sweep 2rdefl3u)",
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": null,
+      "quantized_dim": 256,
+      "quantization_levels": 256,
+      "chunk_size": null,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 8,
+      "token_dec_dropout": 0.1,
+      "token_local_window": 64,
+      "compressor_emb_dim": 64,
+      "chunk_local_window": 16,
+      "chunk_use_alibi": false,
+      "learned_pos": true,
+      "compressor_causal": true,
+      "lr": 0.0014109308819477769,
+      "weight_decay": 0.01,
+      "token_wd": 0.02,
+      "clip_grad": 0.5,
+      "batch_size": 32,
+      "block_size": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 512,
+      "lambda_hist_kl": 0.02,
+      "lambda_snap": 0.05,
+      "refiner_target_scale": 0.7,
+      "refiner_l2": 0.0001,
+      "patience": 2,
+      "prior_aux_weight": 0.25
+    },
+    "observed_at": "2026-08-11T06:14:15Z"
+  },
+  "stagnation": {
+    "detected": true,
+    "since_run": 151,
+    "best_bpc_when_detected": 2.2378,
+    "note": "Best 2.2378 BPC set by zesty-sweep-18 (65dr5rv3) at 2026-08-11T06:14:15Z. Standing best unchanged through gen-3 (qrkfjk9v, 48 runs), gen-4 (wbctbhvo 160 + iv1dfhio 83), ~480+ scored runs across 17 days without beating 2.2378 nor baseline current_best 1.8833 BPC. Sweeps frozen/idle: latest W&B run anywhere is lbogdp19 (iv1dfhio, 2026-08-24T18:56Z); no runs since."
+  },
+  "kernels_running": [],
+  "notes": [
+    "2026-08-24: gen-4 sweep wbctbhvo (orchestrator-created, FINISHED 160/160) + rerun iv1dfhio (RUNNING 83/160) both sampled over-cap space chL {10,12,14} + tokFF 1024 > hard caps (8 / 256). Best 2.2406-2.2418 BPC, all top arms unfoldable (kernel coerce_config would clamp). Decoder inflation empirically dead (~486 scored runs): 2.2406 @ chL14/tokFF1024 vs standing 2.2378 @ chL6/tokFF512 — +0.003 for ~4x FF and 2.3x depth.",
+    "2026-08-24 (steer): created successor z86wszrq — the first FULLY CAP-CLEAN, foldable space: chL {5,6,7} <= 8, tokFF {128,256} <= 256, and opens never-swept PerPos levers chunk_size {2,3,4} (TPU iter-21 winner used ch2) + quantized_dim {128,192,256}. Var repoint BLOCKED (HTTP 403, no Actions-variable write; PRIVATE_REPO_PAT absent).",
+    "2026-08-25 (PR #117): adopted z86wszrq as the maintained successor — mirrored its exact server-side space into kernels/perpos-gpu-sweep/_private_live/sweep_config.json, removed 54pkjxrp's unfoldable fixed arm token_dec_dim_ff=[1024]. Var repoint still 403.",
+    "2026-08-26 (PR #119): monitor confirmed zero new W&B runs since 08-24T18:56Z (~2 days). All sweeps frozen/idle (GPU quota). Stagnation extended ~394 runs / 5 days. REJECTED 11 wbctbhvo runs for runtime inflation (36.4-41.8ks > 32.4ks cap) — none were top-BPC. Held z86wszrq, no new orphan sweep minted. Var repoint still 403 (3rd cycle).",
+    "2026-08-28 (THIS cycle): re-verified — no new W&B runs anywhere since 2026-08-24T18:56Z (GPU agents still idle/quota-drained). Standing best 2.2378 BPC (65dr5rv3) unchanged; NO fold (2.2378 >> baseline current_best 1.8833 BPC; nothing budget-clean beats either). Re-mirrored the cap-clean z86wszrq space into _private_live/sweep_config.json (byte-identical to server-side params: chL{5,6,7}/tokFF{128,256}/ch{2,3,4}/qdim{128,192,256}, lr[1.15e-3,1.45e-3], run_cap 160), replacing the stale 54pkjxrp config. Held z86wszrq (4th straight cycle). Var repoint attempt below.",
+    "BLOCKED (4th consecutive cycle): gh variable set SWEEP_WANDB_SWEEP_ID -b z86wszrq -> HTTP 403 (GITHUB_TOKEN lacks Actions-variables write; PRIVATE_REPO_PAT absent this run). Var still points at starved 54pkjxrp. ROOT CAUSE: the GPU orchestrator self-creates sweeps from its own source and does not consume SWEEP_WANDB_SWEEP_ID (evidence: wbctbhvo/iv1dfhio created while var pointed elsewhere). Maintainer fix needed: grant Actions variables write or expose PRIVATE_REPO_PAT, AND make the orchestrator join SWEEP_WANDB_SWEEP_ID when set. WANDB_SWEEP_ID left unset (deliberate).",
+    "NO FOLD: global sweep best 2.2378 BPC does not beat baseline current_best 1.8833 BPC. No canonical-config PR warranted. (Even on a fold, standing best 65dr5rv3 needs a tokFF 512->256 clamp.)",
+    "Config persisted at kernels/perpos-gpu-sweep/_private_live/sweep_config.json (this cycle)."
+  ]
+}
