@@ -1,0 +1,35 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 74,
+  "iteration": 35,
+  "iter": 35,
+  "goal": "Iter-35 (v74): token_dec_dim_ff 128->256 probe upsampler capacity at LOCKED 10M/512/256/bs384, revert mtp 0.10->0.15 sweet spot (v73 regressed 1.9486->1.9604 BPC). Single arch lever within caps, budget locked, fix kernelspec display_name ERROR.",
+  "pushed_at": "2026-09-16T08:35:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (v74)",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "budget": "10M/512/256/bs384 locked",
+  "prev_best_bpc": 1.94861,
+  "prev_best_val_nats": 1.35068,
+  "prev_run": {
+    "kernel_version": 73,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/a4tfg6cs",
+    "wandb_run_name": "upbeat-snowflake-45",
+    "val_bpc": 1.9604,
+    "val_loss_nats": 1.35885,
+    "epochs_run": 37,
+    "early_stopped": "no (completed 37/40, no early stop, best E29)",
+    "fit_time_s": 1106.96,
+    "time_to_convergence": "1107s (~18.45 min) for 37ep; best E29 1.3588; ~15.0s/epoch steady, 1x ~98.5s sampling epoch",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qkTrue/comp128/tokenL2/tokenFF128/learnedTrue/mtp depth2 w0.10/lr9e-4/wd0.1/clip0.5 (v73 mtp 0.10 probe)",
+    "status": "KernelWorkerStatus.ERROR (training completed, W&B synced, but notebook validation ERROR: 'display_name' missing in kernelspec - fixed in v74)",
+    "conclusion": "v73 mtp 0.10 REGRESSED 1.9486->1.9604 (+0.0118 BPC) vs v72 winner. Sweet spot confirmed at mtp 0.15. Next probe token upsampler capacity."
+  },
+  "arch_tweak": "token_dec_dim_ff 128->256 (cap 256) + revert mtp 0.10->0.15 + sync d1024/learnedTrue/nhead16/tokenL2 to parity with v72 winner (6-line sync, 1 new lever)",
+  "checks": {
+    "budget_locked": "10M/512/256/bs384",
+    "caps_ok": "chunk_L8<=8 chunk_FF2048<=2048 token_L2<=2 token_FF256<=256 (at cap)",
+    "ip": "172.190.118.183"
+  }
+}
