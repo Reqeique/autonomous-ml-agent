@@ -1,0 +1,55 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 79,
+  "iteration": 40,
+  "iter": 40,
+  "pushed_at": "2026-09-27T09:12:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-40 (v79): SOLE lever chunk_dec_dropout 0.2->0.3 on the v78 winner arch at the LOCKED 10M/512/256/bs384 budget. Dropout is the strongest measured gradient (0.05->2.05402 | 0.1->1.93327 | 0.2->1.86000 BPC); 0.3 is its untested end.",
+  "budget": "LOCKED/FIXED: limit_chars 10M (FIXED dict), block 512, stride 256, batch 384, warmup 150, spe 16, epochs 40, patience 4",
+  "sole_lever": "chunk_dec_dropout 0.2 -> 0.3",
+  "prev_best_bpc": 1.86,
+  "prev_best_run": "v78 / wandb ethereal-thunder-50 (s1y9s6hj), chunk_dec_dropout 0.2",
+  "prev_run": {
+    "kernel_version": 78,
+    "iteration": 39,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/s1y9s6hj",
+    "wandb_run_name": "ethereal-thunder-50",
+    "val_bpc": 1.864,
+    "val_best_bpc": 1.86,
+    "val_best_loss_nats": 1.28925,
+    "epoch_reached": 37,
+    "early_stopped": "yes (patience 4, best at E33, stopped E37)",
+    "fit_time_s": 1151.03,
+    "runtime_s": 1169,
+    "time_to_convergence": "1151s (~19.2 min) fit / 1169s runtime; 15.06 s/epoch, 6.11 steps/s; best_bpc 1.86000 at E33",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr eff 1.2e-3/wd0.1/clip0.5/chunk_dropout0.20",
+    "conclusion": "NEW BEST. chunk_dec_dropout 0.1->0.2 gained -0.0733 BPC (1.93327 -> 1.86000) for +25% wall-clock (923s -> 1151s). Third consecutive monotone win for regularization (0.05/0.1/0.2 = 2.054/1.933/1.860). Also beats the over-budget 30M/bs96 anchor (1.8833 BPC) at 1/3 the data."
+  },
+  "arch_tweak": "None to the model. Sole change = chunk_dec_dropout 0.2->0.3 (regularization of the PerPos chunk decoder). Committed notebook was also re-synced to the v78 winner config (d_model 768->1024, chunk_nhead 12->16, learned_pos False->True, token_dec_layers 1->2, mtp_weight 0.25->0.15, base lr 9e-4->8e-4 = eff 1.2e-3) so that dropout is the only delta vs the measured 1.86000 baseline.",
+  "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr eff 1.2e-3/wd0.1/clip0.5/chunk_dropout0.30",
+  "measured_leaderboard_val_best_bpc": {
+    "v78 ethereal-thunder-50 s1y9s6hj dropout0.20": 1.86,
+    "v77 sweet-totem-49 7b90w2jy dropout0.10": 1.93327,
+    "v?? clear-moon-44 v3mv0j3f lr9e-4 mtp0.15 dropout0.10": 1.94861,
+    "devout-monkey-43 4ijadzwl mtp0.20": 1.95285,
+    "leafy-plant-46 b4f9i67i mtp0.15 tokenFF256": 1.95887,
+    "zany-sea-48 lgp755ac mtp0.10": 1.9604,
+    "upbeat-snowflake-45 a4tfg6cs mtp0.10": 1.9604,
+    "honest-brook-42 a7vy3d7r mtp0.25": 1.96113,
+    "bright-firebrand-47 of80aacd mtp0.15 chunk_dropout0.05": 2.05402
+  },
+  "controlled_effects_measured": {
+    "chunk_dec_dropout": "0.05 -> 2.05402 | 0.10 -> 1.93327 | 0.20 -> 1.86000  (monotone, 0.05->0.20 = -0.194 BPC; 0.30 untested)",
+    "lr_effective": "9e-4 -> 1.94861 | 1.2e-3 -> 1.93327 (improving; 1.5e-3 untested)",
+    "mtp_weight": "0.10 -> 1.9604 | 0.15 -> 1.94861 | 0.20 -> 1.95285 | 0.25 -> 1.96113 (0.15 optimum)"
+  },
+  "next_directions_if_030_regresses": [
+    "0.3 regresses => regularizer saturated; hold dropout 0.2 and probe the next-weakest untested lever: lr eff 1.2e-3 -> 1.5e-3, or token_dec_dropout 0.0 -> 0.1 (the token upsampler is currently unregularized).",
+    "0.3 wins => 0.4 is the next probe, but watch time-to-convergence: v78 already cost 25% more wall-clock than v77 for the gain, and the run now early-stops at E33-37 of a locked 40.",
+    "Cross-check: v78 (1.86000) now beats the over-budget 30M-char/bs96 anchor (1.8833). Target for the next win is <1.85 at <=20 min/40 epochs."
+  ]
+}
