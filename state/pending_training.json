@@ -1,0 +1,18 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 81,
+  "iteration": 42,
+  "iter": 42,
+  "pushed_at": "2026-09-29T09:44:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-42 (v81): SOLE lever = U-net skip connections in the PerPos chunk decoder (modded-nanogpt rec 9/11/45/50). Gated by 4 learnable scalars (init sigmoid(-2)=0.119); ~0 params, ~0 FLOPs. On the restored v78 winner arch. Beat 1.86000 BPC at <= 1151s fit.",
+  "budget": "LOCKED/UNCHANGED: limit_chars 10M (FIXED), block 512, stride 256, batch 384, warmup 150, spe 16, epochs 40, patience 4",
+  "sole_lever": "chunk_dec_unet False -> True",
+  "prev_best_bpc": 1.86,
+  "prev_best_run": "v78 / wandb ethereal-thunder-50 (s1y9s6hj), chunk_dec_dropout 0.2, lr 1.2e-3",
+  "rejected_this_cycle": "v80 token_dec_dropout 0.1 = 1.91625 BPC, CONFOUNDED (lr also moved 1.2e-3 -> 8e-4), so the token_dec_dropout effect stays UNMEASURED",
+  "verify_on_completion": "Pull api.run(config) and confirm the ONLY delta vs s1y9s6hj is chunk_dec_unet False->True before drawing any conclusion. Report fit seconds + best epoch."
+}
