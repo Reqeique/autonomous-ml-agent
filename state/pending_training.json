@@ -1,0 +1,54 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 82,
+  "iteration": 43,
+  "iter": 43,
+  "pushed_at": "2026-10-01T10:04:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-43 (v82): SOLE lever lr 1.2e-3 -> 1.5e-3 on the v81 winner arch (chunk_dec_unet=True, chunk_dec_dropout 0.2). lr is on a measured rising edge at cdrop 0.2 (8e-4 -> 1.91625, 1.2e-3 -> 1.84410) and the v81 curve plateaus E33->E40 (1.2817 -> 1.2782 nats) as cosine anneals to ~0, so the binding constraint is LR integral inside the fixed 40 epochs, not capacity.",
+  "budget": "LOCKED/FIXED, unchanged: limit_chars 10M, block 512, stride 256, batch 384, epochs 40, warmup 150, spe 16",
+  "sole_lever": "lr 1.2e-3 -> 1.5e-3 (schedule only; zero compute change)",
+  "prev_best_bpc": 1.8441030639507112,
+  "prev_best_run": "v81 / wandb avid-darkness-53 (pvz94wfa), lr 1.2e-3, cdrop 0.2, unet True, mtp 0.15, d1024/q128/ff2048/nhead16/tokenL2/tokenFF128",
+  "prev_run": {
+    "kernel_version": 81,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/pvz94wfa",
+    "wandb_run_name": "avid-darkness-53",
+    "val_best_bpc": 1.8441030639507112,
+    "val_best_loss_nats": 1.278234839439392,
+    "epoch": 40,
+    "early_stopped": "no (completed 40/40, no early stop)",
+    "fit_time_s": 1247.5,
+    "time_to_convergence": "1247.5s (~20.8 min) fit for 40 epochs; ~15-18s/epoch steady state (~91 steps/epoch) with ~95-102s sampling epochs every 8 (E16/E24/E32/E40)",
+    "val_curve": "E20 1.3409 | E25 1.3083 | E30 1.2864 | E33 1.2817 | E35 1.2815 | E38 1.2812 | E40 1.2782 nats -> PLATEAU over last 7 epochs (-0.0035 nats) while train/loss keeps falling 1.6977 -> 1.6589",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/unetTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr1.2e-3/wd0.1/clip0.5/cdrop0.20"
+  },
+  "architecture_evidence_measured_this_run": {
+    "chunk_dec_unet (novel PerPos part)": "False -> 1.86000 (ethereal-thunder-50, E37, early stop, 1151s) | True -> 1.84410 (avid-darkness-53, E40 full, 1247s). Sole differing knob => U-net = -0.0159 BPC AND removes the early stop. CONFIRMED WIN, keep True.",
+    "chunk_dec_dropout": "0.05 -> 2.05402 | 0.1 -> 1.93327 | 0.2 -> 1.84410 | 0.3 -> 1.93662. Clear inverted-U, measured optimum 0.2. Do NOT test 0.25; the peak is bracketed.",
+    "lr @ cdrop 0.2": "8e-4 -> 1.91625 | 1.2e-3 -> 1.84410. Rising edge; 1.5e-3 is the untested next step (this push).",
+    "mtp_weight": "0.10 -> 1.9604 | 0.15 -> 1.9486 | 0.20 -> 1.9529 | 0.25 -> 1.9611 | 0.35 -> 1.9924. Inverted-U optimum 0.15, keep.",
+    "token_dec_dim_ff": "128 -> 1.94861 | 256 -> 1.95887. 256 worse, keep 128 (cap is 256, not a target)."
+  },
+  "config_actual_pushed": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/unetTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr1.5e-3/wd0.1/clip0.5/cdrop0.20",
+  "next_iteration_directions": [
+    "If lr 1.5e-3 WINS (beats 1.84410): the LR edge moved again -> test 1.8e-3. If it early-stops or diverges, lr 1.2e-3-1.35e-3 is the bracket; lr is then exhausted.",
+    "If lr 1.5e-3 REGRESSES: lr optimum is bracketed at 1.2e-3-1.5e-3; pivot to a novel-part capacity lever that regularization now supports, e.g. compressor_emb_dim 128->192 (the ChunkCompressorEmbedding is the cheapest novel part: N=256 chunk positions vs 512 tokens, so it costs almost no extra FLOPs).",
+    "cdrop 0.2 is the measured optimum and is bracketed (0.1 worse, 0.3 worse) - do not spend more pushes on it.",
+    "ch=2 (chunk_size) has never been swept at the current arch; ch=4 halves the chunk sequence (cheaper, coarser) and is a genuine novel-Part hyperparam worth one push.",
+    "REPO HYGIENE FIXED THIS RUN: kernels/perpos-enwik8/train.ipynb had drifted ~14 iterations behind the live kernel and was missing the chunk_dec_unet code path entirely (d768/nhead12/cdrop0.1/tokenL1/learned_posFalse). It is now synced to the live v81 winner arch (minus the new lr lever) and kernels/ is tracked. It also had a BAKED-IN W&B API KEY from an earlier push; that secret is now stripped from the committed notebook and re-injected per-push.",
+    "W&B per-epoch history is still empty (0 scan points) on recent runs even though summary is populated - a logging gap. Per-epoch curves must currently be recovered from the Kaggle kernel log (`kaggle kernels output` -> ml-playground-perpos-enwik8.log, grep 'val_loss:').",
+    "state/baseline.json current_best updated to the v81 1.84410 anchor by this run."
+  ],
+  "checks": {
+    "budget_locked": "10M/512/256/bs384/40ep/warmup150/spe16 - asserted pre-push against the live source; coerce_config applies FIXED first so CONFIG cannot override limit_chars/block_size/stride",
+    "caps_ok": "chunk_L8<=8, chunk_FF2048<=2048, token_L2<=2, token_FF128<=256 (all at or under caps, no inflation)",
+    "no_compute_inflation": "epochs 40, limit_chars 10M, block 512, batch 384 ALL unchanged; early stopping still active (patience 4); sole diff vs live v81 is the lr scalar",
+    "notebook_valid": "JSON valid, single code cell compiles, kernelspec display_name present",
+    "no_secrets_committed": "stale baked-in W&B key stripped from committed notebook; verified 0 occurrences; push payload re-injected from env via scripts/inject_wandb.py",
+    "push": "Kernel version 82 pushed; status QUEUED at +25s"
+  }
+}
