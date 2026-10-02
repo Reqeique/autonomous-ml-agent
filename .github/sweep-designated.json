@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "Designated GPU sweep pointer for the ml-sweep-loop cycle.",
+    "WHY THIS FILE EXISTS: `gh variable set SWEEP_WANDB_SWEEP_ID` returns HTTP 403",
+    "for the GITHUB_TOKEN of these workflows ('Resource not accessible by",
+    "integration' - the job token has no actions:variables grant). Every sweep",
+    "id minted since 2026-08-14 therefore became unreachable: a kernel push",
+    "always joined whatever stale id the repo variable still held.",
+    "",
+    "`.github/` is the only tree that is BOTH public and served verbatim to the",
+    "runner (the 'Pull private tree' step overlays everything EXCEPT .git and",
+    ".github). So this file is the writable pointer channel that needs no PAT,",
+    "no admin and no variables scope.",
+    "",
+    "PRECEDENCE (see the 'Resolve designated sweep' step in both",
+    "opencode-ml-sweep.yml and opencode-ml-agent.yml):",
+    "  1. this file's sweep_id",
+    "  2. repo variable SWEEP_WANDB_SWEEP_ID (if this file is absent)",
+    "  3. state/sweep_state.json -> sweep_id",
+    "",
+    "The ml-sweep-loop skill's hard rule is preserved: WANDB_SWEEP_ID (the",
+    "shared TPU-agent variable) stays unset and is never created here."
+  ],
+  "sweep_id": "m3gdk0yc",
+  "entity": "ananiyajemberu21-custom",
+  "project": "ml-playground-perpos-gpu",
+  "url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/sweeps/m3gdk0yc",
+  "state": "PENDING",
+  "runs": 0,
+  "designated_at": "2026-10-02T00:00:00Z",
+  "designated_by": "ml-sweep-loop cycle 2026-10-02",
+  "supersedes": [
+    "08wxlqx1 (0 runs)",
+    "m3gdk0yc-adjacent orphans: 8p4t1juu, xqlix7jx, kzv86bvy, l6j9d86b, z86wszrq, 54pkjxrp (all 0 runs)"
+  ],
+  "config_source": "kernels/perpos-gpu-sweep/_private_live/sweep_config.json (PR #207) - server config verified byte-identical after creation",
+  "cap_clean": true,
+  "notes": "Adopted, not re-minted. m3gdk0yc already exists on the server (PENDING, 0 runs), is cap-clean by construction, replicates n=3, and carries the two corrections with the best GPU-side evidence (lr floor 0.00136-0.00139, clw centred high at {null,64,128,256}). Re-minting a successor would only add a seventh orphan while the blocker is execution and pointer plumbing, not search design."
+}
