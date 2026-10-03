@@ -1,0 +1,42 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 84,
+  "iteration": 45,
+  "iter": 45,
+  "pushed_at": "2026-10-03T09:10:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-45 (v84): SOLE lever lr 1.5e-3 -> 1.8e-3 (top edge of the LR bracket), on the v82 winner arch with compressor_emb_dim REVERTED 192 -> 128. ARCHITECTURE-FIRST / ANTI-INFLATION: budget fields untouched (10M chars, block 512, stride 256, bs384, 40 ep, patience 4, warmup 150, spe 16). This is the pre-registered next step from iter-44.",
+  "sole_lever": "lr 1.5e-3 -> 1.8e-3 (schedule shape only; plus revert of the regressed v83 comp_emb lever). Zero compute inflation.",
+  "budget": "LOCKED/FIXED, unchanged: limit_chars 10M, block 512, stride 256, batch 384, epochs 40, patience 4, warmup 150, spe 16",
+  "analysis_of_prev_run": {
+    "kernel_version": 83,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/n20oayx6",
+    "wandb_run_name": "run-20261002_200010-n20oayx6",
+    "sole_lever": "compressor_emb_dim 128 -> 192 (ChunkCompressorEmbedding width)",
+    "val_best_bpc": 1.8340568693832113,
+    "val_best_loss_nats": 1.2712713479995728,
+    "epoch": 33,
+    "epochs_run": 37,
+    "early_stopped": "yes (stopped E37/40, patience 4)",
+    "fit_time_s": 1132.85,
+    "time_to_convergence": "best BPC 1.83406 at E33; full fit 1132.9s (~18.9 min) for 37 epochs, 15.08s/epoch steady state, 6.10 steps/s",
+    "val_curve": "E20 1.3162 | E25 1.2886 | E30 1.2746 | E33 1.2713 (best) | E35 1.2725 | E37 1.2755",
+    "VERDICT": "REGRESSION vs v82 (1.82969 BPC / 1.26825 nats @E33). Worse loss AND ~1.4% slower. compressor_emb_dim is SATURATED at 128 -> chunk-embedding capacity is ruled OUT as the binding constraint. comp_emb 128->256 must NOT be pushed.",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/unetTrue/comp192/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr1.5e-3/wd0.1/clip0.5/cdrop0.20"
+  },
+  "lr_bracket_so_far": "8e-4 -> 1.91625 | 1.2e-3 -> 1.84410 | 1.5e-3 -> 1.82969 (v82 best) | 1.8e-3 -> RUNNING (v84)",
+  "next_iteration_directions": [
+    "If lr 1.8e-3 WINS (beats 1.82969): the LR edge is at/past its top -> revert to 1.5e-3 and stop LR probing; the wall is then genuinely model-side, and the next lever must be a NEW novel-PerPos part, not a scalar.",
+    "If lr 1.8e-3 REGRESSES: LR is bracketed at 1.5e-3 (1.2e-3 / 1.5e-3 / 1.8e-3 measured). LR and comp_emb width are both closed. Do NOT re-test either. Next: the one untested structural knob is ch (chunk_size) 2 -> 4 (halves the chunk sequence, coarser AR) or d_model 1024 -> 1280 (within budget, ~25% more chunk-dec FLOPs).",
+    "Measured/bracketed - do NOT spend pushes: cdrop 0.2, mtp_weight 0.15, token_dec_dim_ff 128, token_dec_layers 2, chunk_dec_unet True, learned_pos True, compressor_emb_dim 128, lr 1.5e-3.",
+    "W&B per-epoch history is still empty (0 scan points) on recent runs although summary is populated - per-epoch curves are being recovered by grepping 'val_loss:' from the Kaggle log instead. Worth fixing when convenient."
+  ],
+  "hygiene_fixes_this_run": [
+    "kernels/perpos-enwik8/train.ipynb was stale vs the live kernel (d768/nhead12/tokenL1/learned_posFalse/mtp0.25/lr9e-4/cdrop0.1, no chunk_dec_unet path). Re-synced from `kaggle kernels pull` to the true v83 arch, secret-stripped.",
+    "The live Kaggle notebook had a HARD-CODED W&B API KEY in cell 1 (it is now injected per-push by scripts/inject_wandb.py). That key must be considered COMPROMISED and rotated on W&B.",
+    "The entire working tree (kernels/, state/, scripts/, AGENTS.md, .opencode/, reference/) was untracked despite iter-44 claiming it was committed. Now actually committed on this branch."
+  ]
+}
