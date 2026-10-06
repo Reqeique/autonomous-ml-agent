@@ -1,0 +1,14 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 85,
+  "pushed_at": "2026-10-06T10:21:10Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "goal": "Iter-46: single architecture/regularization lever weight_decay 0.1 -> 0.2 on top of the live iter-45 config (d1024/8L/ff2048/clw256/q128/comp128/tokL2/mtp0.15/dropout0.2/unet/lr1.8e-3). Rationale: run 56 bottoms val at E33/40 with a widening train/val gap (1.6174 vs 1.2639 nats), so the model is generalization-limited not capacity-limited; chunk_dec_dropout is at a bracketed optimum (0.1 and 0.3 both worse than 0.2) while weight_decay was never moved off its swept-range ceiling of 0.1. Beat the current under-budget best 1.82348 BPC (run bcbwgxqz).",
+  "iteration": 46,
+  "baseline_best_bpc": 1.82348,
+  "baseline_best_run": "wandb bcbwgxqz (valiant-glitter-56), best 1.8235 BPC @ E33 / 1058s",
+  "time_to_convergence": "best val at epoch 33 (~1058s / 17.6 min); patience-4 early stop fires at epoch 37 (~1120s / 18.7 min); 40-epoch cap never reached. Locked budget 10M chars / block 512 / stride 256 / bs 384 / 40 ep / patience 4 converges inside ~19 min, ~26x headroom against the 9h TPU session cap.",
+  "budget_untouched": true,
+  "single_change": "weight_decay 0.1 -> 0.2",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8"
+}
