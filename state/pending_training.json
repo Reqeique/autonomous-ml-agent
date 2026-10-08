@@ -1,0 +1,18 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 86,
+  "pushed_at": "2026-10-08T10:28:00Z",
+  "status_at_push": "QUEUED",
+  "wandb_run": "wandb ananiyajemberu21-custom/ml-playground-perpos-bpc (v86 run; pick up the newest run created after 2026-10-08T10:28Z)",
+  "goal": "Iter-47: lr 1.8e-3 -> 2.1e-3 (next point on the unbroken LR ladder, sole lever) after reverting the iter-46 weight_decay 0.2 divergence; target beat under-budget best 1.82348 BPC (iter-45 / run bcbwgxqz), pre-registered ~1.813.",
+  "iteration": 47,
+  "iter": 47,
+  "baseline_to_beat_bpc": 1.82348,
+  "budget": "LOCKED 10M chars / block 512 / stride 256 / batch 384 / 40 epochs / patience 4 (unchanged)",
+  "previous_run": {
+    "iter": 46,
+    "kernel_version": 85,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/p43emn1l",
+    "result": "DIVERGED: weight_decay 0.1->0.2 collapsed at E5 (val bpc 3.11 -> 7.12), early stop E8, best 3.11228 BPC. Analysis done 2026-10-08; issue #218 closed."
+  }
+}
