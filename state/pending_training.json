@@ -1,0 +1,12 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 87,
+  "iteration": 48,
+  "iter": 48,
+  "pushed_at": "2026-10-10T09:53:00Z",
+  "wandb_run": "newest run created after 2026-10-10T09:53Z in ml-playground-perpos-bpc (see kernel log for run id)",
+  "goal": "Iter-48 (v87): token_local_window 128->256 SOLE architecture lever (PerPos token upsampler context) at lr 1.8e-3 (iter-45 optimum; 2.1e-3 diverged), locked 10M/512/256/bs384/40ep/pat4 budget. Target: beat under-budget best 1.82348 BPC.",
+  "baseline_bpc": 1.82348,
+  "baseline_run": "bcbwgxqz (iter-45, kernel v84)",
+  "expected_faster_or_equal_time": "iter-45 best @ E33 ~1058s; v87 must report wall-clock/steps/epochs vs this"
+}
