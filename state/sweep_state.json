@@ -57,7 +57,8 @@
       "chunk_dec_dim_ff": "2048 == cap (xppnwnpn had null, inferred ~512 by ffn_inference_finding). It matches the canonical TPU config and is legal, but it is a capacity/param increase (~13.5M -> ~26M params per arm), i.e. the 'dim_ff inflation' the skill warns about. It applies uniformly so it does not bias relative ranking inside the sweep; it does raise per-arm wall-clock by roughly 1.3x. Recorded, not changed - changing it would require minting a successor."
     },
     "grid_check": "32 cells x 3 seeds = 96 = run_cap, and W&B expected_run_count = 96. Free axes counted: cdd 2 x clw 4 x comp_emb 2 x tokL 2 = 32.",
-    "reverified_2026_10_09": "api.sweep(fr79fq9s) -> PENDING, 0 runs, 0/96 used. Committed sweep_config.json re-written this cycle from the live server config and verified byte-identical (json.dumps sort_keys comparison == True). Pointer SWEEP_WANDB_SWEEP_ID = fr79fq9s (read back 2026-10-09). WANDB_SWEEP_ID confirmed ABSENT (HTTP 404) and NOT created."
+    "reverified_2026_10_09": "api.sweep(fr79fq9s) -> PENDING, 0 runs, 0/96 used. Committed sweep_config.json re-written this cycle from the live server config and verified byte-identical (json.dumps sort_keys comparison == True). Pointer SWEEP_WANDB_SWEEP_ID = fr79fq9s (read back 2026-10-09). WANDB_SWEEP_ID confirmed ABSENT (HTTP 404) and NOT created.",
+    "reverified_2026_10_10": "api.sweep(fr79fq9s) -> state PENDING, 0 runs, expected_run_count 96 (0/96 used). Committed sweep_config.json re-verified BYTE-IDENTICAL to the live server config this cycle (json.dumps sort_keys comparison == True) - no config/pointer drift. Pointer SWEEP_WANDB_SWEEP_ID = fr79fq9s (this job's env). WANDB_SWEEP_ID confirmed ABSENT and NOT touched. Same job also re-pulled all 519 project runs: newest is still 2026-08-24, so the pointer points at a design that has never run."
   },
   "designated_sweep_history": {
     "xppnwnpn": {
@@ -286,7 +287,7 @@
     "reverified_2026_10_08": "Fresh 519-run pull 2026-10-08. Record unchanged: 65dr5rv3 = 2.23781 BPC (val/best_loss 1.55113 / ln2), params 10336079, runtime 10666s, epochs 27, bs 32, blk 256, limit_chars 10M, lr 0.0014109, cdl 6, tokFF 512 (OVER CAP 256), clw 16. Still the only over-cap-only rejection in rank 1 (compute-lean); still NOT foldable. The GPU project has emitted 0 new runs since 2026-08-24T18:56:42Z."
   },
   "fold_target": {
-    "note": "19th consecutive no-fold. The GPU sweep has produced no run since 2026-08-24; the ranking is the same historical table re-pulled 2026-10-09.",
+    "note": "20th consecutive no-fold. The GPU sweep has produced no run since 2026-08-24; the ranking is the same historical table re-pulled 2026-10-10.",
     "current_best_baseline_json": 1.8833,
     "newest_tpu_side_reported": 1.82348,
     "under_budget_best_tpu_side": 1.82348,
@@ -294,21 +295,22 @@
     "gap_to_baseline_json": 0.3545,
     "gap_to_tpu_under_budget": 0.4143,
     "gap_in_sigma": 32.9,
-    "fold_decision": "NO FOLD - 19th consecutive. (1) GPU record 2.2378 is 0.3545 BPC worse than baseline.json current_best 1.8833. (2) ZERO of 467 metric-bearing arms run at the committed budget - all are block_size=256 x batch_size in {32,48,64,96} against the locked 512 x 384, so none is a budget-respecting candidate. (3) ZERO arms are cap-clean (record tokFF 512 > 256; ranks 2-5 additionally cdl 14 > 8). baseline.json untouched by this cycle.",
+    "fold_decision": "NO FOLD - 20th consecutive. (1) GPU record 2.2378 is 0.3545 BPC worse than baseline.json current_best 1.8833. (2) ZERO of 467 metric-bearing arms run at the committed budget - all are block_size=256 x batch_size in {32,48,64,96} against the locked 512 x 384, so none is a budget-respecting candidate. (3) ZERO arms are cap-clean (record tokFF 512 > 256; ranks 2-5 additionally cdl 14 > 8). baseline.json untouched by this cycle.",
     "tpu_side_context": "ml-playground-perpos-bpc re-pulled 2026-10-08: 84 runs (was 83 on 2026-10-05). Under-budget (10M / bs384 / blk512 / 40ep) best is still bcbwgxqz 1.82348, then 51u7sqky 1.82969, n20oayx6 1.83406, pvz94wfa 1.84410. NEW: run p43emn1l (floral-sea-57, 2026-10-06T14:39Z, lr 0.0018 + weight_decay 0.2 = the iter-46 lever of PR #217) DIVERGED - val/best_bpc 3.11228, early-stopped at epoch 8. The TPU side is currently moving in the wrong direction; that does not change the fold bar."
   },
   "stagnation": {
     "detected": true,
     "since_run": 151,
     "best_bpc_when_detected": 2.2378,
-    "days_stale": 46,
+    "days_stale": 47,
     "last_new_run_at": "2026-08-24T18:35:39Z",
     "new_runs_this_cycle": 0,
-    "monitor_cycles": 19,
+    "monitor_cycles": 20,
     "root_cause": "UNCHANGED: execution, not search. Both Kaggle GPU sweep kernels are halted one-cell stubs with enable_gpu=false, and the PyTorch trainer that produced all 519 runs exists neither in this repo nor in any Kaggle kernel. Re-verified 2026-10-08 via kaggle kernels status (both COMPLETE = finished their stub run) and a directory listing of kernels/perpos-gpu-sweep/.",
     "note": "Record 2.2378 BPC (65dr5rv3, 2026-08-11) stands unchallenged through 519 runs / 41 days / 16 monitor cycles. 0 of 467 metric-bearing arms are cap-clean - not one run in the GPU history has trained inside the foldable region.",
     "reverified_2026_10_08": "W&B: 519 project runs, newest 2026-08-24T18:56:42Z (45 days). Designated sweep fr79fq9s: 0 runs, state PENDING, 0/96 run_cap used. xppnwnpn: 0 runs. Root cause unchanged and re-verified: the two Kaggle GPU sweep slugs still report KernelWorkerStatus.COMPLETE with their last execution on 2026-08-23/24, and kernels/perpos-gpu-sweep/ in this repo still contains ONLY _private_live/sweep_config.json - no kernel-metadata.json, no notebook, no train_src.py. Nothing can be pushed, so nothing can run.",
-    "reverified_2026_10_09": "W&B re-pulled 2026-10-09: 518 runs across the five run-bearing sweeps, 467 metric-bearing, newest 2026-08-24T18:35:39Z (46 days stale). Designated sweep fr79fq9s: 0 runs, state PENDING, 0/96 used; xppnwnpn/fr peers all 0. Blocker unchanged: perpos-gpu-sweep-a/-b report KernelWorkerStatus.COMPLETE with last execution 2026-08-23 (halted one-cell stubs), and kernels/perpos-gpu-sweep/ still holds only _private_live/sweep_config.json - no trainer, no kernel-metadata.json."
+    "reverified_2026_10_09": "W&B re-pulled 2026-10-09: 518 runs across the five run-bearing sweeps, 467 metric-bearing, newest 2026-08-24T18:35:39Z (46 days stale). Designated sweep fr79fq9s: 0 runs, state PENDING, 0/96 used; xppnwnpn/fr peers all 0. Blocker unchanged: perpos-gpu-sweep-a/-b report KernelWorkerStatus.COMPLETE with last execution 2026-08-23 (halted one-cell stubs), and kernels/perpos-gpu-sweep/ still holds only _private_live/sweep_config.json - no trainer, no kernel-metadata.json.",
+    "reverified_2026_10_10": "W&B re-pulled 2026-10-10: 519 project runs, 467 metric-bearing (val/loss present), 379 full-rung (epochs=27), newest metric run 2026-08-24T18:35:39Z (47 days stale) and newest run of any kind 2026-08-24T18:56:42Z. Designated sweep fr79fq9s: 0 runs, state PENDING, 0/96 used; xppnwnpn also 0 runs. Blocker re-verified this cycle: kaggle kernels status ananiyajemberu/perpos-gpu-sweep-a and -b BOTH report KernelWorkerStatus.COMPLETE (their stub last executed 2026-08-23), and kernels/perpos-gpu-sweep/ still contains ONLY _private_live/sweep_config.json - no kernel-metadata.json, no notebook, no train_src.py. Nothing can be pushed, so nothing can run."
   },
   "kernels_running": [],
   "blocked_on": {
@@ -322,7 +324,7 @@
       "1. Restore the PyTorch PerPos sweep trainer (train_src.py) under kernels/perpos-gpu-sweep/ - it is the code that produced the 519 historical runs and is in neither the repo nor any kernel in the account.",
       "1b. NEW: when restoring it, pin the trainer's defaults to the COMMITTED BUDGET (batch_size 384, block_size 512, stride 256, limit_chars 10000000). It currently defaults to batch_size 32 / block_size 256 = 24x below budget, which is why 0 of 467 arms were ever foldable. See operating_point_finding.",
       "2. Add kernels/perpos-gpu-sweep/kernel-metadata.json with enable_gpu=true, enable_tpu=false, enable_internet=true, id ananiyajemberu/perpos-gpu-sweep-a (title must slugify to 'perpos gpu sweep a').",
-      "3. Have the kernel read the sweep config from the W&B API at SWEEP_WANDB_SWEEP_ID (already correct: xppnwnpn) and launch the agent.",
+      "3. Have the kernel read the sweep config from the W&B API at SWEEP_WANDB_SWEEP_ID (already correct: fr79fq9s) and launch the agent.",
       "4. Only then does steering have anything to steer. Until then, do NOT mint more sweeps."
     ],
     "handoff": "Design side: pointer = fr79fq9s (raw REST GET 2026-10-09, updated_at 2026-10-07T12:11:41Z); committed sweep_config.json rewritten byte-identical to the live server config (json.dumps sort_keys == True); design cap-clean; exhaustive 32 cells x 3 seeds = 96. Outstanding action is unchanged and on the owner/orchestrator: restore the PyTorch PerPos sweep trainer (train_src.py) + kernel-metadata.json with enable_gpu=true, pinned to the committed budget. ml-sweep-loop never pushes kernels and did not.",
@@ -458,6 +460,8 @@
     }
   ],
   "notes": [
+    "2026-10-10 THIS cycle (monitor 20): fresh pull of all 519 project runs reproduces the 19-cycle picture exactly - 0 new runs since 2026-08-24 (47 days), 467 metric-bearing, 0 cap-clean, 0 at the committed 10M/512/384 budget, record still 65dr5rv3 2.2378 BPC (0.3545 worse than baseline.json 1.8833). NO FOLD (20th). NO successor minted (20th consecutive hold; fr79fq9s already exists, 0/96, and the blocker is the halted kernel, not search depth - see no_successor_decision). NO repo-variable change (pointer already = fr79fq9s; WANDB_SWEEP_ID left ABSENT). NO Kaggle kernel pushed. Committed sweep_config.json re-verified byte-identical to the live fr79fq9s server config. blocker re-verified 2026-10-10: perpos-gpu-sweep-a/-b both COMPLETE (stub), trainer still absent from kernels/perpos-gpu-sweep/.",
+    "2026-10-10 PR-NOTE: this cycle is based ON TOP OF the still-open cycle-18 (#222) and cycle-19 (#224) reconcile PRs; their content is carried through here so this single PR reconciles state+config to fr79fq9s and adds the cycle-20 metrics. If merged, #222/#224 are redundant.",
     "2026-10-09 THIS cycle: fresh pull reproduces the 18-cycle picture exactly - 0 new runs since 2026-08-24, 0 of 467 arms cap-clean, 0 at the committed budget, record 65dr5rv3 2.2378 BPC (0.3545 worse than 1.8833). No successor (19th hold; fr79fq9s already the freshly-minted successor, 0/96) and no fold (19th). Reconciled committed sweep_config.json to the live fr79fq9s server config (byte-identical); pointer verified fr79fq9s via raw REST; WANDB_SWEEP_ID still absent. Blocker re-verified: GPU sweep kernels are halted stubs (COMPLETE, last run 2026-08-23) and the trainer is absent from the repo.",
     "2026-10-08 THIS cycle (monitor 18): found an ORPHANED successor - the failed 2026-10-07 sweep cycle minted fr79fq9s and repointed SWEEP_WANDB_SWEEP_ID (updated_at 12:11:41Z) but crashed before any PR or state write, leaving the committed config byte-DIFFERENT from the live pointer (6 diffs). Reconciled: sweep_config.json rewritten byte-identical to the live server config, sweep_id/designated_sweep repointed to fr79fq9s, PR opened. NO NEW SWEEP (18th hold - reasons in no_successor_decision), NO FOLD (18th: 0 of 467 arms at the committed budget, 0 cap-clean, record 2.2378 vs bar 1.8833), NO kernel pushed, WANDB_SWEEP_ID left absent. New analysis: clw_depth_confound (the raw top-30 anti-clw=16 result is a depth confound; within-depth it is a wash). Fresh metrics: 519/467/379 runs, sigma 0.0126, drought 45 days.",
     "2026-10-08 POINTER: raw REST GET with the /tmp/private token -> SWEEP_WANDB_SWEEP_ID = fr79fq9s (updated_at 2026-10-07T12:11:41Z), WANDB_SWEEP_ID = 404/absent. No variable write was needed or performed this cycle.",
@@ -478,8 +482,8 @@
     "2026-08-23: created successor 54pkjxrp (run_cap 240); variable repointed f90jv35j -> 54pkjxrp. Never got runs.",
     "2026-08-14: sweep 2rdefl3u drained and idle - all 7 kernel slugs CANCEL_ACKNOWLEDGED."
   ],
-  "last_cycle": "2026-10-09T11:55Z (monitor cycle 19)",
-  "last_cycle_actions": "Monitor + reconcile + analyse. Fresh 2026-10-09 pull of the five run-bearing GPU sweeps: 0 new runs since 2026-08-24, 467 metric-bearing, 0 cap-clean, 0 at the committed 10M/512/384 budget, record still 65dr5rv3 2.2378 BPC. Confirmed stagnation (46 days, 19 cycles). NO successor minted (19th consecutive hold; a successor fr79fq9s already exists, 0/96, and the blocker is a halted kernel - not search depth). NO repo-variable change (pointer already = fr79fq9s; WANDB_SWEEP_ID left absent). NO fold (19th; bar 1.8833 unmet by 0.3545 BPC). NO Kaggle kernel pushed. sweep_config.json reconciled to the live fr79fq9s config; baseline.json untouched. PR opened.",
+  "last_cycle": "2026-10-10T~11:00Z (monitor cycle 20)",
+  "last_cycle_actions": "Monitor + analyse only. Fresh 2026-10-10 pull of all 519 GPU project runs: 0 new runs since 2026-08-24 (47 days), 467 metric-bearing, 0 cap-clean, 0 at the committed 10M/512/384 budget, record still 65dr5rv3 2.2378 BPC. Confirmed stagnation (47 days, 20 cycles). NO successor minted (20th consecutive hold; a successor fr79fq9s already exists, 0/96, and the blocker is a halted kernel - not search depth). NO repo-variable change (pointer already = fr79fq9s; WANDB_SWEEP_ID left absent). NO fold (20th; bar 1.8833 unmet by 0.3545 BPC). NO Kaggle kernel pushed. sweep_config.json re-verified byte-identical to the live fr79fq9s config; baseline.json untouched. Branched on top of the open #222/#224 reconcilers and opened one consolidated PR.",
   "kernel_stub_finding": {
     "headline": "THE REAL BLOCKER, FINALLY EVIDENCED: the GPU sweep kernels on Kaggle are HALTED ONE-CELL STUBS with the GPU DISABLED, and the PyTorch trainer that produced all 519 runs exists NOWHERE (not in the repo, not on Kaggle). Prior cycles called the drought a POINTER problem; the pointer is correct - there is simply nothing to push.",
     "reproduction": [
@@ -501,7 +505,7 @@
     "not_fixed_by_this_skill": "ml-sweep-loop never pushes kernels, and it must not author the missing PyTorch trainer. Restoring execution needs the owner (or the orchestrator) to restore train_src.py + kernel-metadata.json under kernels/perpos-gpu-sweep/ with enable_gpu=true."
   },
   "no_successor_decision": {
-    "decision": "KEEP fr79fq9s. No successor minted this cycle (19th consecutive hold).",
+    "decision": "KEEP fr79fq9s. No successor minted this cycle (20th consecutive hold).",
     "reasons": [
       "A successor to the current stagnation already exists and is correctly designated: fr79fq9s was minted 2026-10-07 (reconciled by open PR #222) and has 0/96 run_cap used. Minting again today would be the 10th consecutive 0-run sweep - pure churn.",
       "0 of 96 run_cap used = maximum room; skill Steer #4 says keep it when runs << run_cap.",
@@ -511,7 +515,8 @@
     ],
     "what_would_change_this_decision": "Any new W&B run, or a restored executable trainer. On restoration: budget-align first, then mint ONE successor carrying (a) clw coverage of the half-context point and (b) the fixed budget fields, and folding in the already-probed tokL/comp_emb axes.",
     "not_looped": "The 'create a successor' branch of the prompt was considered and declined for the five reasons above; it was not attempted and abandoned.",
-    "cycle_19_note": "The prompt's 'create the successor' branch was considered and declined again (10th consecutive). The decision is grounded in the skill's own churn guard and the freshly-minted fr79fq9s, not in inaction."
+    "cycle_19_note": "The prompt's 'create the successor' branch was considered and declined again (10th consecutive). The decision is grounded in the skill's own churn guard and the freshly-minted fr79fq9s, not in inaction.",
+    "cycle_20_note": "The prompt's 'create the successor' branch was considered and declined AGAIN (11th consecutive). fr79fq9s is still the correct designated successor (0/96 used, config byte-identical to server, pointer verified 2026-10-10). Minting an 11th 0-run sweep would be churn against the skill's Steer #4 ('if the current sweep still has room you may keep it'). The only thing that moves the number is a restored trainer; that is out of scope for ml-sweep-loop."
   },
   "aliasing_finding_correction": {
     "headline": "CORRECTION to the 2026-10-03 aliasing_finding: the aux knobs are NOT 100% aliased with chunk_dec_layers. They DO vary inside chunk_dec_layers=4 (2-3 distinct values each). The CONCLUSION survives - no aux effect is identified - but the stated MECHANISM was wrong, and the difference matters for what to do next.",
@@ -588,5 +593,15 @@
     "best": "record unchanged: 65dr5rv3 = 2.2378 BPC (val/loss 1.5511, params 10336079, runtime 10666s, cdl 6, tokFF 512, clw 16).",
     "top5": "2.2378 65dr5rv3 (cdl6/tokFF512, lean 10.3M); 2.2406 x7vuvvus; 2.2411 6l5qdkou; 2.2418 s9gnov0d; 2.2428 4uhzwo5y - ranks 2-5 all cdl14/tokFF1024, 23.0M params, over-cap on both cdl and tokFF.",
     "sigma": "Within-config robust sigma carried forward = 0.0126; top-12 spread 0.0120 = 0.95 sigma, so ranks 1-12 remain a coin flip. No new replication possible without a kernel."
+  },
+  "reconfirm_2026_10_10": {
+    "note": "Fresh independent pull 2026-10-10 of all 519 project runs (five run-bearing sweeps + 1 sweep-less). Every prior quantitative claim reproduces; ZERO new runs.",
+    "gpu_side": "519 runs total, 467 metric-bearing (val/loss present), 453 finished / 65 crashed (some overlap). Newest metric run 2026-08-24T18:35:39Z; newest run of any kind 2026-08-24T18:56:42Z (no metric). 47 days stale.",
+    "budget": "limit_chars=10000000 for all 467; block_size=256 for all 467; arms at the committed 10M/512/384 = 0. Zero deviations; zero foldable arms.",
+    "cap_clean": "0 of 467 metric-bearing arms cap-clean (tokFF<=256, tokL<=2, cdl<=8, cddFF<=2048). token_dec_dim_ff values seen {512:74, 1024:393} vs cap 256; token_dec_layers 1 in all 467 vs cap 2; chunk_dec_dim_ff null in all 467.",
+    "best": "record unchanged: 65dr5rv3 = 2.2378 BPC (val/loss 1.5511, params 10336079, runtime 10666s, cdl 6, tokFF 512, clw 16) - still over-cap on token_dec_dim_ff (512 > 256) and at bs32/blk256 (24x below budget). Not foldable.",
+    "top5": "2.2378 65dr5rv3 (cdl6/tokFF512, lean 10.3M); 2.2406 x7vuvvus; 2.2411 6l5qdkou; 2.2418 s9gnov0d; 2.2428 4uhzwo5y - ranks 2-5 all cdl14/tokFF1024, 23.0M params, over-cap on both cdl and tokFF.",
+    "sweeps": "fr79fq9s: PENDING, 0 runs, 0/96 used. xppnwnpn: PENDING, 0 runs. Neither has ever run.",
+    "sigma": "Within-config robust sigma carried forward = 0.0126; top-12 spread 0.0120 = 0.95 sigma. No new replication possible without a kernel."
   }
 }
