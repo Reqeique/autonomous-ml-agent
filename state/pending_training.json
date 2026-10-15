@@ -1,0 +1,21 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 88,
+  "iteration": 49,
+  "goal": "Iter-49 breakthrough probe: revert iter-48's regressive token_local_window 256->128 and test quantized_dim 128->64 as the sole architecture lever, targeting the generalization-limited val plateau (beat iter-45 best 1.82348 BPC) at the locked 10M/512/256/bs384 budget.",
+  "wandb_run": "ml-playground-perpos-bpc (newest run created after 2026-10-15T08:14:59Z)",
+  "pushed_at": "2026-10-15T08:14:59Z",
+  "baseline_being_improved": {
+    "val_bpc": 1.82348,
+    "run": "wandb bcbwgxqz (iter-45, token_local_window=128)"
+  },
+  "folded_previous": {
+    "iter": 48,
+    "kernel_version": 87,
+    "wandb_run": "wandb nomamgdv",
+    "val_best_bpc": 1.82583,
+    "verdict": "REGRESSED vs iter-45 1.82348 (token_local_window 128->256). Reverted in v88."
+  },
+  "budget_unchanged": "limit_chars=10M, block_size=512, stride=256, batch_size=384, epochs=40, patience=4, warmup_steps=150",
+  "caps_respected": "token_dec_layers=2, token_dec_dim_ff=128, chunk_dec_layers=8, chunk_dec_dim_ff=2048"
+}
