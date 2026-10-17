@@ -1,0 +1,8 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 89,
+  "pushed_at": "2026-10-17T07:45:00Z",
+  "wandb_run": "wandb ananiyajemberu21/ml-playground-perpos-bpc (newest run after push)",
+  "goal": "Iter-50/v89: sole lever quantized_dim 64->32, continuing the v88 win (qdim128->64 = 1.82348->1.80752 BPC + first converged run). Bracket the quantization-bottleneck optimum at zero budget cost. Baseline to beat: 1.80752 BPC (v88, run iokxjpas, best E31, early-stop E35, 1074.4s).",
+  "iteration": 50
+}
