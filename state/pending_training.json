@@ -1,0 +1,15 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 66,
+  "iteration": 27,
+  "goal": "Iter-27 (v66): d_model 768->1024 real capacity bump at LOCKED 10M/512/256/bs384 budget (intended v64 experiment that never ran - v64 drifted to d768 -> 1.9600 BPC best-under-budget, not converged). coerce_config auto chunk_nhead 12->16 (pos_dim 512@ch2, dk~32). Target: beat 1.9600 BPC.",
+  "pushed_at": "2026-09-02T00:00:00Z",
+  "wandb_run": "ananiyajemberu21/ml-playground-perpos-bpc (v66, pushed at handoff)",
+  "prior_run_result": {
+    "kernel": "v64",
+    "wandb_run_id": "xghebj31",
+    "val_bpc": 1.96,
+    "epochs": 40,
+    "converged": false
+  }
+}
