@@ -1,0 +1,33 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 69,
+  "iteration": 30,
+  "goal": "Iter-30 (v69): probe mtp_weight 0.25->0.35 + revert tokenFF 256->128 & restore d1024/tokenL2 (v67 best 1.9872) at LOCKED 10M/512/256/bs384; fix nbformat display_name ERROR",
+  "pushed_at": "2026-09-06T07:48:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (v69)",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "budget": "10M/512/256/bs384 locked",
+  "prev_best_bpc": 1.98722,
+  "prev_best_val_nats": 1.37744,
+  "prev_run": {
+    "kernel_version": 68,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/blmjh0oz",
+    "wandb_run_name": "tough-plasma-40",
+    "val_bpc": 1.99174,
+    "val_loss_nats": 1.38057,
+    "epochs_run": 35,
+    "early_stopped": "yes (patience 4, best E31 1.3805 -> stop E35)",
+    "fit_time_s": 1061.6,
+    "time_to_convergence": "1061.6s (~17.7 min) for 35ep early-stop; ~15.4s/epoch steady, 1.04s at sampling epochs (8,16,24,32)",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF256/learned_posFalse/mtp depth2 w0.25/lr9e-4/wd0.1/clip0.5",
+    "status": "KernelWorkerStatus.ERROR due to nbformat validator missing display_name, but training completed and W&B logged",
+    "conclusion": "tokenFF 128->256 regressed 1.9872->1.9917 (+0.0045) at same budget/d1024; reverted to 128 for v69"
+  },
+  "arch_tweak": "mtp_weight 0.25->0.35 (probe sweet spot between 0.25 and 0.5) + d_model 768->1024, chunk_nhead 12->16, token_dec_layers 1->2 sync to v67 winner + fix kernelspec display_name",
+  "checks": {
+    "budget_locked": "10M/512/256/bs384",
+    "caps_ok": "chunk_L8<=8 chunk_FF2048<=2048 token_L2<=2 token_FF128<=256",
+    "ip": "52.159.247.228"
+  }
+}
