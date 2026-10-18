@@ -1,0 +1,8 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 62,
+  "iteration": 24,
+  "goal": "Iter-24 (v62): RETRY of the failed v61 gated value-skip (modded-nanogpt rec 55) with the build-time dtype bug fixed. v61 ERRORed at build (Mul: expected bf16, got float32 gate) and trained ~0 steps. Fix: gate = tf.cast(tf.sigmoid(self.value_gate), trans_out.dtype) so the skip-add runs under mixed_bfloat16. Same single architecture change at locked 10M/512/256/bs384 budget; gate init -5 (sigmoid~0.007) => starts near-identical to the 1.9542 BPC baseline (quiet-dragon-28) so improvement is attributable to learning the skip. Also re-added kernelspec.display_name (missing one caused v60's nbformat ERROR). Target: beat 1.9542 BPC.",
+  "pushed_at": "2026-08-29T09:57:00Z",
+  "wandb_run": "ananiyajemberu21/ml-playground-perpos-bpc (v62, kernel RUNNING at handoff)"
+}
