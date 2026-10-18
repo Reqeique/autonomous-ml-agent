@@ -1,0 +1,13 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 48,
+  "iteration": 22,
+  "iter": 22,
+  "pushed_at": "2026-08-17T04:10:00Z",
+  "goal": "Iter-22: single-lever arch change at locked 10M/512/256/bs384 budget — chunk_dec_dim_ff 1024->2048 (within committed cap 2048; aligned the kernel's internal _CAPS clamp from 1024->2048 to match baseline architecture_caps). MTP w0.25 kept. Attribution-clean: this is the ONLY change vs live v45 (2.0496 BPC anchor). Curve not converged at E40; FF capacity should close headroom.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_entity": "ananiyajemberu21-custom",
+  "wandb_project": "ml-playground-perpos-bpc",
+  "target_metric": "beat under-budget best 2.0496 BPC (iter-21 v45, zany-bee-19/lyric-dragon-21)"
+}
