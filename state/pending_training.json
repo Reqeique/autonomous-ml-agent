@@ -1,0 +1,12 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 53,
+  "iteration": 26,
+  "pushed_at": "2026-08-23T04:05:00Z",
+  "goal": "iter-26 = faithful retry of errored iter-25: rebuild from canonical working-tree notebook (v45 sync) + documented v50-winner knobs (chunk_dec_dim_ff 1024->2048 @cap, quantized_dim 64->128) + ONE experiment vs the v50 anchor (1.9768 BPC): chunk_local_window 128->256 (mask-only, zero extra attention FLOPs). Target: beat 1.9768 BPC at locked 10M/512/256/bs384 budget.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (TBD)",
+  "baseline_context": "v51 (iter-25) died at build time: pushed source was from a divergent lineage (bs96/tokenL9/window None) and crashed in ~10s with SyntaxError (markdown prose inside first code cell); no training ran. Also fixed stale in-kernel coerce_config cap chunk_dec_dim_ff 1024 -> 2048 to match baseline.json architecture_caps.",
+  "expected_runtime_min": 18,
+  "watch_hint": "kaggle kernels status ananiyajemberu/ml-playground-perpos-enwik8"
+}
