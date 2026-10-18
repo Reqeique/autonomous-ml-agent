@@ -1,0 +1,64 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 78,
+  "iteration": 39,
+  "iter": 39,
+  "pushed_at": "2026-09-26T08:33:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-39 (v78): SOLE lever chunk_dec_dropout 0.1->0.2 on the v77 winner arch at the LOCKED 10M/512/256/bs384 budget. Regularization is the strongest measured gradient in the 12-run leaderboard (0.05->2.05402, 0.1->1.94861 BPC) and 0.2 is its untested end; also targets v77's early stop at E31.",
+  "budget": "LOCKED/FIXED: limit_chars 10M (FIXED dict), block 512, stride 256, batch 384, warmup 150, spe 16",
+  "sole_lever": "chunk_dec_dropout 0.1 -> 0.2",
+  "prev_best_bpc": 1.93327,
+  "prev_best_run": "v77 / wandb sweet-totem-49 (7b90w2jy), lr 1.2e-3, mtp 0.15, d1024/q128/ff2048/nhead16/tokL2",
+  "prev_run": {
+    "kernel_version": 77,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/7b90w2jy",
+    "wandb_run_name": "sweet-totem-49",
+    "val_bpc": 1.94378,
+    "val_best_bpc": 1.93327,
+    "val_best_loss_nats": 1.34004,
+    "epoch": 31,
+    "early_stopped": "yes (patience 4, stop E31)",
+    "fit_time_s": 923.39,
+    "time_to_convergence": "923s (~15.4 min) fit / 942s runtime; 15.07 s/epoch, 6.10 steps/s; best_bpc 1.93327",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr1.2e-3/wd0.1/clip0.5/chunk_dropout0.10",
+    "conclusion": "v77 lr 9e-4->1.2e-3 WON: 1.94861 -> 1.93327 BPC (-0.0153) at 12% less wall-clock than the lr9e-4 run. New best. But it early-stopped at E31 (vs E34-37 at lr9e-4) => the higher LR reaches its ceiling sooner; remaining headroom is regularization/capacity, not schedule."
+  },
+  "arch_tweak": "None to the model. Sole change = chunk_dec_dropout 0.1->0.2 (regularization of the PerPos chunk decoder).",
+  "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr1.2e-3/wd0.1/clip0.5/chunk_dropout0.20",
+  "measured_leaderboard_val_best_bpc": {
+    "v77 sweet-totem-49 7b90w2jy": 1.93327,
+    "v?? clear-moon-44 v3mv0j3f lr9e-4 mtp0.15": 1.94861,
+    "devout-monkey-43 4ijadzwl mtp0.20": 1.95285,
+    "leafy-plant-46 b4f9i67i mtp0.15 tokenFF256": 1.95887,
+    "zany-sea-48 lgp755ac mtp0.10": 1.9604,
+    "upbeat-snowflake-45 a4tfg6cs mtp0.10": 1.9604,
+    "honest-brook-42 a7vy3d7r mtp0.25": 1.96113,
+    "bright-firebrand-47 of80aacd mtp0.15 chunk_dropout0.05": 2.05402
+  },
+  "controlled_effects_measured": {
+    "chunk_dec_dropout": "0.05 -> 2.05402 | 0.1 -> 1.94861  (STRONGEST gradient, 0.105 BPC; 0.2 untested)",
+    "lr": "9e-4 -> 1.94861 | 1.2e-3 -> 1.93327  (improving; 1.2e-3 untested upward)",
+    "mtp_weight": "0.35->1.99237 0.25->1.96113 0.20->1.95285 0.15->1.94861 0.10->1.9604 (inverted-U, optimum 0.15)",
+    "token_dec_dim_ff": "128 -> 1.94861 | 256 -> 1.95887 (256 WORSE, keep 128)"
+  },
+  "next_iteration_directions": [
+    "If chunk_dropout 0.2 wins: try 0.25 (gradient may still be rising) OR pair with a capacity increase in a novel part (compressor_emb_dim 128->192) now that overfit is controlled.",
+    "If 0.2 overshoots (val worse than 1.93327 and still early-stopping): fall back to 0.15 midpoint.",
+    "lr is on a rising edge: 1.2e-3->1.5e-3 is the next untested schedule lever.",
+    "REPO HYGIENE BUG (fix before it costs more): kernels/ is UNTRACKED in git and the on-disk train.ipynb had drifted ~12 iterations behind the live configs (was d768/lr9e-4/mtp0.25/tokenL1/nhead12/learned_posFalse). It is now synced to the v77 winner. Commit kernels/ so the next agent does not push a stale arch.",
+    "state/baseline.json is stale (describes iter-19/21 at v45, ~2 months old) and its canonical kernel_slug is wrong. Update to the v77/v78 winner.",
+    "v77's W&B history is empty (0 scan points) while its summary is populated - a logging gap worth checking before trusting per-epoch curves."
+  ],
+  "checks": {
+    "budget_locked": "10M/512/256/bs384 - enforced in FIXED dict (coerce_config applies FIXED first, so CONFIG cannot override limit_chars/block_size/stride) + asserted pre-push",
+    "caps_ok": "chunk_L8<=8, chunk_FF2048<=2048, token_L2<=2, token_FF128<=256 (all within caps, no inflation)",
+    "no_compute_inflation": "epochs 40, limit_chars 10M, block 512, batch 384 ALL unchanged; early stopping still active (patience 4)",
+    "notebook_valid": "JSON valid, code cell compiles, kernelspec display_name added (fixes nbconvert error)",
+    "wandb_injected": "scripts/inject_wandb.py OK; notebook resolves entity via API -> ananiyajemberu21-custom",
+    "push": "Kernel version 78 successfully pushed; status QUEUED at +25s"
+  }
+}
