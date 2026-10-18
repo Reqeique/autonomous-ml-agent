@@ -1,0 +1,234 @@
+{
+  "early_terminate": {
+    "eta": 3,
+    "max_iter": 27,
+    "min_iter": 1,
+    "type": "hyperband"
+  },
+  "method": "bayes",
+  "metric": {
+    "goal": "minimize",
+    "name": "val/ce_final"
+  },
+  "parameters": {
+    "batch_size": {
+      "values": [
+        32
+      ]
+    },
+    "ch": {
+      "value": 4
+    },
+    "chunk_dec_dim_ff": {
+      "values": [
+        null
+      ]
+    },
+    "chunk_dec_dropout": {
+      "values": [
+        0.1
+      ]
+    },
+    "chunk_dec_layers": {
+      "values": [
+        7,
+        8
+      ]
+    },
+    "chunk_decoder_type": {
+      "value": "perpos"
+    },
+    "chunk_local_window": {
+      "values": [
+        null,
+        16
+      ]
+    },
+    "chunk_nhead": {
+      "values": [
+        8
+      ]
+    },
+    "chunk_use_alibi": {
+      "values": [
+        false
+      ]
+    },
+    "clip_grad": {
+      "values": [
+        0.5,
+        1
+      ]
+    },
+    "comp_lr_mult": {
+      "values": [
+        1.5
+      ]
+    },
+    "compressor_causal": {
+      "value": true
+    },
+    "compressor_emb_dim": {
+      "values": [
+        48,
+        64,
+        96
+      ]
+    },
+    "d_model": {
+      "values": [
+        1024
+      ]
+    },
+    "epochs": {
+      "values": [
+        27
+      ]
+    },
+    "freeze_refiner_epochs": {
+      "values": [
+        1,
+        2
+      ]
+    },
+    "hist_sample_tokens": {
+      "value": 8192
+    },
+    "lambda_hist_kl": {
+      "values": [
+        0.005,
+        0.01,
+        0.02
+      ]
+    },
+    "lambda_snap": {
+      "values": [
+        0.02,
+        0.05
+      ]
+    },
+    "learned_pos": {
+      "values": [
+        false,
+        true
+      ]
+    },
+    "lr": {
+      "distribution": "log_uniform_values",
+      "max": 0.00145,
+      "min": 0.00115
+    },
+    "min_lr_ratio": {
+      "values": [
+        0.05,
+        0.1
+      ]
+    },
+    "patience": {
+      "values": [
+        1,
+        2
+      ]
+    },
+    "prior_aux_weight": {
+      "values": [
+        0.5
+      ]
+    },
+    "prior_heavy_epochs": {
+      "values": [
+        2,
+        4,
+        6
+      ]
+    },
+    "prior_ramp_epochs": {
+      "values": [
+        1,
+        2
+      ]
+    },
+    "quantized_dim": {
+      "values": [
+        256
+      ]
+    },
+    "refiner_l2": {
+      "values": [
+        0.0001
+      ]
+    },
+    "refiner_target_scale": {
+      "values": [
+        0.4,
+        0.5,
+        0.7
+      ]
+    },
+    "seed": {
+      "values": [
+        1337
+      ]
+    },
+    "token_dec_dim_ff": {
+      "values": [
+        1024
+      ]
+    },
+    "token_dec_dropout": {
+      "values": [
+        0.1
+      ]
+    },
+    "token_dec_layers": {
+      "values": [
+        1
+      ]
+    },
+    "token_dec_nhead": {
+      "values": [
+        8
+      ]
+    },
+    "token_emb_dim": {
+      "values": [
+        128
+      ]
+    },
+    "token_local_window": {
+      "values": [
+        64
+      ]
+    },
+    "token_lr_mult": {
+      "values": [
+        0.35,
+        0.5,
+        0.7
+      ]
+    },
+    "token_wd": {
+      "values": [
+        0.01,
+        0.02
+      ]
+    },
+    "use_amp": {
+      "value": true
+    },
+    "use_pos_mixing": {
+      "value": true
+    },
+    "warmup_steps": {
+      "values": [
+        512
+      ]
+    },
+    "weight_decay": {
+      "values": [
+        0.01
+      ]
+    }
+  },
+  "run_cap": 240
+}

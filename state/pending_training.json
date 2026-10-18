@@ -1,0 +1,10 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 59,
+  "iteration": 26,
+  "goal": "Iter-26: single architecture knob d_model 768->1024 (coerce re-heads chunk_nhead 12->16 dk~32) at locked 10M/512/256/bs384 budget. Target: beat iter-25's under-budget best 1.96888 BPC. Also carries kernelspec.display_name fix so export no longer ERRORs post-training.",
+  "wandb_project": "ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-26T04:20:00Z",
+  "prev_best_bpc": 1.96888,
+  "watch_for": ["OOM at bs384/d1024 on v5e-8 (fallback iter-27: chunk_dec_dim_ff 2048->1536, keep d1024)", "kernelspec export ERROR should be gone"]
+}
