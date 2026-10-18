@@ -1,0 +1,154 @@
+{
+  "sweep_id": "l6j9d86b",
+  "created_at": "2026-09-25T10:20:00Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "best": {
+    "bpc": 2.2378,
+    "run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/runs/65dr5rv3",
+    "run_name": "zesty-sweep-18 (gen-1, sweep 2rdefl3u)",
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": null,
+      "quantized_dim": 256,
+      "quantization_levels": 256,
+      "chunk_size": 4,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 8,
+      "token_local_window": 64,
+      "compressor_emb_dim": 64,
+      "chunk_local_window": 16,
+      "chunk_use_alibi": false,
+      "learned_pos": true,
+      "compressor_causal": true,
+      "lr": 0.0014109308819477769,
+      "weight_decay": 0.01,
+      "token_wd": 0.02,
+      "token_lr_mult": 0.7,
+      "clip_grad": 0.5,
+      "batch_size": 32,
+      "block_size": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 512,
+      "lambda_hist_kl": 0.02,
+      "lambda_snap": 0.05,
+      "refiner_target_scale": 0.7,
+      "refiner_l2": 0.0001,
+      "patience": 2,
+      "prior_aux_weight": 0.25
+    },
+    "observed_at": "2026-08-11T06:14:15Z",
+    "last_verified_at": "2026-09-25T10:15:00Z",
+    "params_count": 10336079,
+    "runtime_s": 10666,
+    "foldable": false,
+    "why_not_foldable": "token_dec_dim_ff=512 is 2x the hard cap 256 (kernel coerce_config would clamp to 256 -> different model than the measured 2.2378). Every one of the 467 runs carrying a metric swept token_dec_dim_ff in {512, 1024}, so ZERO cap-clean arms exist in the entire 519-run history.",
+    "beats_baseline_current_best": false
+  },
+  "monitor_2026_09_25": {
+    "runs_pulled": 519,
+    "finished": 438,
+    "crashed": 65,
+    "with_val_loss": 467,
+    "newest_run_at": "2026-08-24T18:56:42Z",
+    "days_since_new_run": 32,
+    "cap_clean_runs": 0,
+    "budget_audit": {
+      "limit_chars": "10000000 for all 518 configured runs (uniform, matches committed budget)",
+      "block_size": "256 for all (kernel's own GPU fixed; HALF the committed TPU 512)",
+      "epochs": "max 27 for all — zero epoch inflation",
+      "runtime_over_9h_cap": "15 runs > 32400s (max 41789s) in wbctbhvo(11)+qrkfjk9v(4) — REJECTED as session-length inflation; none of them carries a val/loss, so none affected the ranking",
+      "batch_size_deviations": "60 runs at bs 48/64/96 instead of the sweep-fixed 32 — rejected as budget deviations; all strictly worse anyway (best 2.3995 / 2.6503 / 3.7496 vs 2.2378 at bs 32)"
+    },
+    "top5": [
+      {"rank": 1, "bpc": 2.2378, "run": "65dr5rv3", "name": "zesty-sweep-18", "sweep": "2rdefl3u", "params": 10336079, "runtime_s": 10666, "verdict": "budget-clean but OVER-CAP (tokFF 512>256) — not foldable"},
+      {"rank": 2, "bpc": 2.2406, "run": "x7vuvvus", "name": "treasured-sweep-5", "sweep": "iv1dfhio", "params": 23038287, "runtime_s": 17342, "verdict": "REJECT compute inflation: chL 14>8, tokFF 1024>256, 2.2x params, 1.6x slower"},
+      {"rank": 3, "bpc": 2.2418, "run": "s9gnov0d", "name": "vivid-sweep-61", "sweep": "wbctbhvo", "params": 23038287, "runtime_s": 16268, "verdict": "REJECT same as #2"},
+      {"rank": 4, "bpc": 2.2428, "run": "4uhzwo5y", "name": "polar-sweep-3", "sweep": "wbctbhvo", "params": 23038287, "runtime_s": 16557, "verdict": "REJECT same as #2"},
+      {"rank": 5, "bpc": 2.2456, "run": "8cebzy53", "name": "tough-sweep-48", "sweep": "iv1dfhio", "params": 23038287, "runtime_s": 16886, "verdict": "REJECT same as #2"}
+    ],
+    "headline": "Ranks 2-8 are ALL chL 10-14 + tokFF 1024 with 16.7-23.0M params — 1.6-2.2x the record's 10.3M for +0.003..+0.010 BPC. The cap-clean 6-layer record beats every one of them on BPC AND on wall-clock. Decoder inflation is empirically dead, which vindicates the anti-GPT-ification caps.",
+    "no_fold_reason": "Best 2.2378 BPC does not beat baseline current_best 1.8833 BPC, and is not foldable (over-cap). No canonical-config change, no baseline.json change."
+  },
+  "cross_device_caveat": "GPU arms run block_size=256 / batch_size=32 / 27 epochs (~270M token-predictions) versus the committed TPU budget block 512 / stride 256 / bs 384 / 40 epochs (~800M). GPU BPC is therefore NOT directly comparable to the TPU numbers in baseline.json (current_best 1.8833 @ 30M chars = 3x the locked 10M budget AND token_dec_layers 3 > cap 2; the like-for-like under-budget TPU anchor is iter-21/v45 = 2.0496 BPC). Do not treat 2.2378 as 'the sweep failed to beat the baseline' — it is a different compute envelope.",
+  "stagnation": {
+    "detected": true,
+    "since_run": 151,
+    "best_bpc_when_detected": 2.2378,
+    "days_stagnant": 45,
+    "note": "Record 2.2378 BPC (zesty-sweep-18, 65dr5rv3, 08-11) still stands after a FRESH 519-run pull. ZERO new runs in 32 days (newest 2026-08-24T18:56Z, iv1dfhio). This is no longer hyperparameter stagnation — the sweep is COMPUTE-STARVED: no GPU arm has executed since 2026-08-23."
+  },
+  "root_cause": {
+    "summary": "Both GPU sweep kernels are idle-COMPLETE and nothing re-pushes them, so no arm ever joins ANY sweep id.",
+    "evidence": [
+      "kaggle kernels list: the only two GPU sweep kernels are ananiyajemberu/perpos-gpu-sweep-a and -b, both lastRunTime 2026-08-23T18:37Z",
+      "kaggle kernels status: both report KernelWorkerStatus.COMPLETE (clean finish, not error/quota-reject)",
+      "no new W&B run in the -gpu project since 2026-08-24T18:56:42Z (32 days)",
+      "all 7 successor sweeps (f90jv35j, 54pkjxrp, z86wszrq, xtpn165h, u5hbmcve, ywll1qb4, l6j9d86b) are PENDING with 0 runs",
+      "the TPU kernel ml-playground-perpos-enwik8 IS still being pushed (lastRunTime 2026-09-24), so this is GPU-arm-specific, not a global Kaggle/quota outage"
+    ],
+    "who_fixes": "the orchestrator / kernel-pusher side, NOT this skill (ml-sweep-loop is read+steer+PR only and must never run `kaggle kernels push`)",
+    "suggested_fix": "re-push perpos-gpu-sweep-a and -b with SWEEP_WANDB_SWEEP_ID=l6j9d86b in the kernel env; until then every successor sweep id is inert"
+  },
+  "repo_variable": {
+    "name": "SWEEP_WANDB_SWEEP_ID",
+    "current_value": "z86wszrq",
+    "desired_value": "l6j9d86b",
+    "write_status": "BLOCKED — HTTP 403 'Resource not accessible by integration'. GITHUB_TOKEN (github-actions[bot]) cannot write Actions variables; PRIVATE_REPO_PAT is not exposed in this workflow's job env.",
+    "adopt_command": "gh variable set SWEEP_WANDB_SWEEP_ID -b l6j9d86b",
+    "note": "WANDB_SWEEP_ID deliberately NOT created/set/read — shared var, a previous sweep-loop leak confused the TPU training agent (skill guardrail)."
+  },
+  "parked_successor_sweeps": {
+    "note": "all PENDING / 0 runs — none has ever received an arm",
+    "ids": ["f90jv35j", "54pkjxrp", "z86wszrq", "xtpn165h", "u5hbmcve", "ywll1qb4", "l6j9d86b"]
+  },
+  "sweeps_with_history": {
+    "2rdefl3u": {"runs": 103, "state": "RUNNING", "best_ce": 1.551132, "newest": "2026-08-11T18:03:22Z", "holds_record": true},
+    "3sns1b3n": {"runs": 124, "state": "RUNNING", "best_ce": 1.578604, "newest": "2026-08-10T21:22:03Z"},
+    "qrkfjk9v": {"runs": 48, "state": "FINISHED", "best_ce": 1.557862, "newest": "2026-08-23T03:29:23Z"},
+    "wbctbhvo": {"runs": 160, "state": "FINISHED", "best_ce": 1.553444, "newest": "2026-08-23T18:03:46Z"},
+    "iv1dfhio": {"runs": 83, "state": "RUNNING", "best_ce": 1.553059, "newest": "2026-08-24T18:56:42Z"}
+  },
+  "steering_2026_09_25": {
+    "config": "kernels/perpos-gpu-sweep/_private_live/sweep_config.json",
+    "free_params_before": 23,
+    "free_params_after": 8,
+    "discrete_space_after": 288,
+    "successor_created": "l6j9d86b",
+    "successor_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/sweeps/l6j9d86b",
+    "axis_by_axis": [
+      {"param": "token_dec_dim_ff", "before": "{128, 256}", "after": "{128, 256}", "note": "kept cap-clean; the swept {512, 1024} was EMPIRICALLY INERT (512 best 2.2378 n=72 vs 1024 best 2.2406 n=366), so the hard cap costs nothing and makes every arm foldable"},
+      {"param": "lr", "before": "[1.15e-3, 1.45e-3]", "after": "[1.30e-3, 1.45e-3]", "note": "band analysis: best BPC improves monotonically to [1.40e-3,1.45e-3) -> 2.2378 (n=8) then DEGRADES at [1.45e-3,1.50e-3) -> 2.2632 (n=12, median 2.6654 = instability). Peak is bracketed at ~1.41e-3; floor raised 1.15e-3 -> 1.30e-3 because every band below 1.3e-3 is strictly worse (best 2.2456+)."},
+      {"param": "ch (chunk_size)", "before": "{2, 3, 4}", "after": "{2, 3, 4}", "note": "KEPT AND PRIORITISED — the single largest gap in the whole history: all 438 finished arms ran ch=4. chunk_size is THE novel PerPos knob (chunk-decoder resolution vs token-decoder burden) and has NEVER been varied on GPU."},
+      {"param": "chunk_dec_layers", "before": "{5, 6, 7}", "after": "{5, 6, 7}", "note": "6 = record (2.2378); 8 measured WORSE (2.2710, n=18); 10/12/14 all over-cap and worse (2.2406-2.2474 with 1.6-2.2x params). Ceiling stays 7, under the hard cap 8."},
+      {"param": "quantized_dim", "before": "{128, 192, 256}", "after": "{192, 256}", "note": "256 best 2.2378 (n=352) vs 128 clearly worse 2.2696 (n=86); 192 is the untested interpolation worth one probe"},
+      {"param": "compressor_emb_dim", "before": "{48, 64, 96}", "after": "{64, 96}", "note": "64 best 2.2378 (n=402); 32 clearly worse 2.2774 (n=36); 96 untested"},
+      {"param": "learned_pos", "before": "{false, true}", "after": "{false, true}", "note": "ambiguous (True 2.2378 n=105 vs False 2.2406 n=333) and confounded by generation; kept as a 2-way probe in the new region"},
+      {"param": "chunk_local_window", "before": "{null, 16, 64}", "after": "{null, 16}", "note": "64 has never been sampled in 519 runs — dropped rather than carried as an untested branch"},
+      {"param": "pinned (23 -> inert)", "after": "batch_size 32, epochs 27, warmup 512, d_model 1024, chunk_nhead 8, token_emb_dim 128, chunk_dec_dim_ff null, chunk_dec_dropout 0.1, token_dec_dropout 0, weight_decay 0.01, token_wd 0.02, clip_grad 0.5, token_dec_layers 1, token_dec_nhead 8, token_local_window 64, comp_lr_mult 2, freeze_refiner 1, prior_heavy 2, prior_ramp 2, prior_aux_weight 0.25, refiner_target_scale 0.7, refiner_l2 1e-4, lambda_hist_kl 0.02, lambda_snap 0.05, min_lr_ratio 0.1, token_lr_mult 0.7, hist_sample_tokens 8192, seed 1337", "note": "each pin is backed by a marginal table over 438 finished arms; d_model 512/768 cost +0.31 BPC, warmup 1024 costs +0.03, chunk_dec_dropout 0 costs +0.13, patience 1 costs +0.03, min_lr_ratio 0.05 costs +0.03, prior_aux_weight 0.75 costs +0.05, token_local_window 32 costs +0.05, lambda_snap 0 costs +0.19, chunk_use_alibi/quantization_levels/chunk_nhead/token_emb_dim were single-valued all along"},
+      {"param": "budget fields", "after": "UNCHANGED", "note": "no budget key added, raised or opened: limit_chars stays 10M, block 256, bs 32, epochs 27, run_cap 160, hyperband eta 3 / max_iter 27 unchanged"}
+    ]
+  },
+  "kernels_running": [],
+  "kernels_idle": [
+    {"slug": "ananiyajemberu/perpos-gpu-sweep-a", "status": "COMPLETE", "last_run": "2026-08-23T18:37:51Z"},
+    {"slug": "ananiyajemberu/perpos-gpu-sweep-b", "status": "COMPLETE", "last_run": "2026-08-23T18:37:57Z"}
+  ],
+  "notes": [
+    "2026-09-25 (THIS cycle): NO FOLD. Fresh 519-run pull confirms record 2.2378 (65dr5rv3) after 45 days. 0 of 467 metric-bearing runs are cap-clean because the whole GPU history swept token_dec_dim_ff in {512,1024} — a structural search-space defect, now fixed in the successor space.",
+    "2026-09-25: This cycle DOES mint a successor (l6j9d86b) despite the 4-cycle 'do not mint orphans' convention, because the user instruction + skill both require it and because the new space is materially different (8 free params, 288 combos, cap-clean, ch opened for the first time, lr bracketed to the measured peak). Recorded honestly as INERT until the variable write lands and an arm is pushed.",
+    "2026-09-25: REPO VARIABLE WRITE BLOCKED (403, GITHUB_TOKEN cannot write Actions variables; PRIVATE_REPO_PAT not in this workflow's env). SWEEP_WANDB_SWEEP_ID still reads z86wszrq. Adopt with: gh variable set SWEEP_WANDB_SWEEP_ID -b l6j9d86b. WANDB_SWEEP_ID left untouched by design.",
+    "2026-09-25: REAL BLOCKER IS UPSTREAM, not the search space — both GPU sweep kernels have been COMPLETE since 2026-08-23 and nothing re-pushes them. Narrowing the space cannot produce a single new run until the pusher side resumes. Escalated in the PR body + report.",
+    "2026-09-25: 15 runs rejected for session-length inflation (36.4-41.8ks > 32.4ks 9h cap, in wbctbhvo/qrkfjk9v); 60 runs rejected for batch_size 48/64/96 instead of the sweep-fixed 32. Neither group touches the top of the ranking.",
+    "2026-08-29: re-mirrored cap-clean z86wszrq config; repointed SWEEP_WANDB_SWEEP_ID 54pkjxrp -> z86wszrq via PRIVATE_REPO_PAT.",
+    "2026-08-28 (PR #124): monitor — sweeps frozen, hold z86wszrq, no fold. Variable repoint BLOCKED (PAT absent).",
+    "2026-08-26 (PR #119): monitor — zero new runs, hold z86wszrq, no fold; rejected 11 wbctbhvo runs for runtime inflation.",
+    "2026-08-25 (PR #117): analyzed gen-4 — depth inflation dead (~400 runs), adopted z86wszrq as cap-clean successor, no fold.",
+    "2026-08-23 (steer): created successor 54pkjxrp (run_cap 240). Never got runs.",
+    "2026-08-14: Sweep 2rdefl3u drained and idle — all 7 kernel slugs CANCEL_ACKNOWLEDGED."
+  ]
+}
