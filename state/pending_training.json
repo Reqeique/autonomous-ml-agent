@@ -1,0 +1,10 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 46,
+  "iteration": 22,
+  "goal": "Iter-22 (v46): single-change mtp_weight 0.25->0.35 sweet-spot probe at the locked 10M/512/256/bs384 budget. Beat iter-21/v45 anchor 2.0496 BPC; find peak of the aux/MTP weight curve (0.5->0.25 helped +0.009, now probing 0.35).",
+  "wandb_run": "ananiyajemberu21/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-15T00:00:00Z",
+  "notes": "chunk_dec_dim_ff hard-capped at 1024 in kernel coerce_config (baseline JSON 2048 is aspirational) -> candidate (d) dead. d_model 1024 would trigger chunk_nhead recoercion + OOM risk -> skipped. mtp_weight is the only clean single-knob lever with no cap. Baseline v45 2.0496 BPC @ 913s/40ep NOT converged (val still descending 1.4435->1.4207 at E40)."
+}
