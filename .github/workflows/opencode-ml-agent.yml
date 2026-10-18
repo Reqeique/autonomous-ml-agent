@@ -63,6 +63,11 @@ jobs:
           # "could not read Username" (exit 128) after a successful run.
           persist-credentials: true
 
+      - name: Configure git identity
+        run: |
+          git config --global user.name "OpenCode ML Agent"
+          git config --global user.email "agent@opencode.local"
+
       - name: Pull private tree
         run: |
           set -e
