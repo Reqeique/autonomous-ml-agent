@@ -1,0 +1,28 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 60,
+  "iteration": 22,
+  "goal": "Iter-22: add gated value-skip (modded-nanogpt rec 55) from compressor value embedding into chunk-transformer output before the token upsampler. Single clean architecture change within the locked 10M/512/256/bs384 budget (gate init ~0 so starts identical to the 1.9542 BPC d768/ff2048/local256/q128 baseline). Target: beat the 1.9542 BPC under-budget baseline (quiet-dragon-28).",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "pushed_at": "2026-08-27T14:15:00Z",
+  "config_expected": {
+    "d_model": 768,
+    "chunk_dec_layers": 8,
+    "chunk_dec_dim_ff": 2048,
+    "chunk_local_window": 256,
+    "chunk_qk_norm": true,
+    "quantized_dim": 128,
+    "compressor_emb_dim": 128,
+    "learned_pos": false,
+    "token_dec_layers": 1,
+    "token_dec_dim_ff": 128,
+    "mtp_depth": 2,
+    "mtp_weight": 0.25,
+    "value_skip": true,
+    "epochs": 40,
+    "batch_size": 384,
+    "limit_chars": 10000000,
+    "block_size": 512,
+    "stride": 256
+  }
+}
