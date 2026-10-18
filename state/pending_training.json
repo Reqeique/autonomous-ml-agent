@@ -1,0 +1,49 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 80,
+  "iteration": 41,
+  "iter": 41,
+  "pushed_at": "2026-09-28T09:47:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-41 (v80): SOLE lever token_dec_dropout 0.0 -> 0.1 on the v78 winner arch at the LOCKED 10M/512/256/bs384 budget. The PerPos token upsampler was the only transformer sub-block left unregularized; this extends the strongest measured gradient (chunk_dec_dropout) to the second novel PerPos part. Zero extra FLOPs, within all caps.",
+  "budget": "LOCKED/FIXED: limit_chars 10M (FIXED dict), block 512, stride 256, batch 384, warmup 150, spe 16, epochs 40, patience 4",
+  "sole_lever": "token_dec_dropout 0.0 -> 0.1",
+  "prev_best_bpc": 1.86,
+  "prev_best_run": "v78 / wandb ethereal-thunder-50 (s1y9s6hj), chunk_dec_dropout 0.2",
+  "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.15/lr eff 1.2e-3/wd0.1/clip0.5/chunk_dropout0.20/token_dropout0.10",
+  "measured_leaderboard_val_best_bpc": {
+    "v78 ethereal-thunder-50 s1y9s6hj chunk_dropout0.20": 1.86,
+    "v79 q6p910rk chunk_dropout0.30 (REGRESSION)": 1.93662,
+    "v77 sweet-totem-49 7b90w2jy chunk_dropout0.10": 1.93327,
+    "v?? clear-moon-44 v3mv0j3f lr9e-4 mtp0.15 dropout0.10": 1.94861,
+    "devout-monkey-43 4ijadzwl mtp0.20": 1.95285,
+    "leafy-plant-46 b4f9i67i mtp0.15 tokenFF256": 1.95887,
+    "zany-sea-48 lgp755ac mtp0.10": 1.9604,
+    "upbeat-snowflake-45 a4tfg6cs mtp0.10": 1.9604,
+    "honest-brook-42 a7vy3d7r mtp0.25": 1.96113,
+    "bright-firebrand-47 of80aacd mtp0.15 chunk_dropout0.05": 2.05402
+  },
+  "controlled_effects_measured": {
+    "chunk_dec_dropout": "0.05 -> 2.05402 | 0.10 -> 1.93327 | 0.20 -> 1.86000 | 0.30 -> 1.93662  (peak at 0.2; 0.3 over-regularizes, confirmed 2026-09-28)",
+    "token_dec_dropout": "0.0 -> (this run, v80)",
+    "lr_effective": "9e-4 -> 1.94861 | 1.2e-3 -> 1.93327 (improving; 1.5e-3 untested)",
+    "mtp_weight": "0.10 -> 1.9604 | 0.15 -> 1.94861 | 0.20 -> 1.95285 | 0.25 -> 1.96113 (0.15 optimum)"
+  },
+  "time_to_convergence": {
+    "v78 (best, dropout 0.2)": "1151s (~19.2 min) fit / 1169s runtime; 15.06 s/epoch, 6.11 steps/s; best_bpc 1.86000 at E33, early stop E37",
+    "v79 (dropout 0.3, regressed)": "1290s (~21.5 min) fit / 1308s runtime; 103.4 s/epoch, 0.89 steps/s; best_bpc 1.93662 at E40, NO early stop (underfit -> kept descending to the epoch cap)",
+    "v80 target": "beat 1.86000 BPC at <= ~20 min fit. token_dec_dropout adds 0 FLOPs so wall-clock should match v78, not v79."
+  },
+  "infra_fixes_this_run": [
+    "Committed kernels/perpos-enwik8/train.ipynb had SILENTLY DIVERGED from the pushed runs (on-disk CFG was d768/nhead12/learned_posFalse/tokenL1/mtp0.25/lr9e-4/dropout0.1 = the v45-era config, while v78/v79 actually ran d1024/nhead16/learned_posTrue/tokenL2/mtp0.15/lr8e-4). Re-synced all 6 fields so the repo notebook is now the true v78 winner and future pushes are attributable.",
+    "Fixed notebook metadata.kernelspec.display_name (was missing). This is what made v79 report KernelWorkerStatus.ERROR on Kaggle: training + W&B logging both succeeded, then Kaggle's post-run nbconvert HTML render failed with \"'display_name' is a required property\". Every run since now reports complete."
+  ],
+  "next_directions_if_token_dropout_010_regresses": [
+    "token_dec_dropout 0.1 regresses => the tiny token upsampler (2 layers, ff 128) does not need regularization; hold chunk_dec_dropout 0.2 + token_dec_dropout 0.0 and probe the next untested lever: lr eff 1.2e-3 -> 1.5e-3 (monotone improving at 0.1 dropout).",
+    "token_dec_dropout 0.1 wins => try 0.2, but watch time-to-convergence: v78 already cost +25% wall-clock over v77 and early-stops at E33-37 of the locked 40.",
+    "If both regularizers saturate, the next architecture-first lever inside caps is chunk_local_window 256 -> 128 (halves chunk attention cost, freeing budget for a wider token window) or chunk_use_alibi (currently coerced False)."
+  ]
+}
