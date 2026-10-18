@@ -1,0 +1,10 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 58,
+  "iteration": 28,
+  "pushed_at": "2026-08-25T04:05:00Z",
+  "goal": "iter-28 (v58): ONE architecture lever - token_local_window 128->512 (FULL causal within block at token level). Chunk-level analog was the winning trend (+0.031 then +0.023 BPC to full-causal saturation); mask is full [N,N] either way so zero extra memory/compute. Base = iter-25 winner config (1.95419 BPC); iter-27 v57 capacity bump (d1024/nhead16) REGRESSED to 1.98896 and was NOT folded. Target: beat 1.95419 BPC at locked 10M/bs384 budget.",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc (TBD)",
+  "baseline_context": "iter-27 (v57, d1024/nhead16/ff2048/q128) early-stopped E35 @ best 1.98896 BPC / 1052.7s fit - REGRESSION vs iter-25 1.95419 @ E40/1075s; over-capacity under fixed schedule. Committed notebook still holds the winner config and got exactly one knob changed: token_local_window 128->512."
+}
