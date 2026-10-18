@@ -1,0 +1,36 @@
+{
+  "kernel": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_slug": "ananiyajemberu/ml-playground-perpos-enwik8",
+  "kernel_version": 77,
+  "iteration": 38,
+  "iter": 38,
+  "pushed_at": "2026-09-24T08:20:00Z",
+  "wandb_run": "ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "wandb_url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc",
+  "kernel_url": "https://www.kaggle.com/code/ananiyajemberu/ml-playground-perpos-enwik8",
+  "goal": "Iter-38 (v77): lr 9e-4->1.2e-3 probe at LOCKED 10M/512/256/bs384 (v72 winner 1.9486 BPC arch). Single arch lever within caps, budget locked. Revert mtp 0.10->0.15 to winner + fix kernelspec display_name nbconvert ERROR.",
+  "budget": "10M/512/256/bs384 locked (FIXED: limit_chars 10M, block 512, stride 256, batch 384)",
+  "prev_best_bpc": 1.94861,
+  "prev_best_run": "v72 winner (d1024/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/FF128/learnedTrue/mtp w0.15)",
+  "prev_run": {
+    "kernel_version": 76,
+    "wandb_run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-bpc/runs/lgp755ac",
+    "wandb_run_name": "zany-sea-48",
+    "val_bpc": 1.9604,
+    "val_loss_nats": 1.35885,
+    "best_epoch": 33,
+    "epochs_run": 37,
+    "early_stopped": "yes (patience 4, best E33 1.3588 -> stop E37)",
+    "fit_time_s": 1141.46,
+    "time_to_convergence": "1141s (~19.0 min) for 37ep early-stop; best E33 1.3588 nats / 1.9604 BPC; 15.0s/epoch steady ~6.1 steps/s",
+    "config_actual": "d1024/ch2/q128/ff2048/nhead16/chunk_window256/qknormTrue/comp128/tokenL2/tokenFF128/learned_posTrue/mtp depth2 w0.10/lr9e-4/wd0.1/clip0.5/chunk_dropout0.10",
+    "status": "KernelWorkerStatus.COMPLETE (v76 completed successfully, but regressed vs v72 winner 1.9486->1.9604 +0.012 BPC)",
+    "conclusion": "v76 mtp_weight 0.15->0.10 REGRESSED 1.9486->1.9604 (+0.012 BPC). Optimum near 0.15. Revert to 0.15 in v77 and probe lr 9e-4->1.2e-3 as single new lever at locked budget."
+  },
+  "arch_tweak": "lr 9e-4->1.2e-3 + revert mtp 0.10->0.15 to v72 winner (single new lever: lr) + sync d768->1024, learned False->True, token L1->2, chunk_nhead 12->16 + fix kernelspec display_name",
+  "checks": {
+    "budget_locked": "10M/512/256/bs384 (FIXED)",
+    "caps_ok": "chunk_L8<=8 chunk_FF2048<=2048 token_L2<=2 token_FF128<=256 (at caps, no inflation)",
+    "ip": "172.172.158.10"
+  }
+}
