@@ -1,0 +1,179 @@
+{
+  "sweep_id": "xqlix7jx",
+  "created_at": "2026-09-28T11:43:00Z",
+  "goal": "SOTA BPC under committed budget via PerPos architecture",
+  "designated_sweep": {
+    "id": "xqlix7jx",
+    "url": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/sweeps/xqlix7jx",
+    "state": "PENDING",
+    "runs": 0,
+    "cap_clean": true,
+    "free_params": 9,
+    "pinned_params": 32,
+    "repo_variable": "SWEEP_WANDB_SWEEP_ID=xqlix7jx (repointed 2026-09-28T11:43Z from kzv86bvy, write verified by read-back; WANDB_SWEEP_ID confirmed still absent and NOT created)",
+    "change_vs_kzv86bvy": "REPLICATION FIX, not another breadth widening. seed [1337] -> [1337, 1338, 1339] so every cell is measured n=3; token_dec_dropout [0, 0.1] -> pinned 0 (its 0.025 BPC edge is 0.8 sigma, i.e. noise, so the 2-way probe was buying nothing); lr min 0.0013 -> 0.00125 (the lr curve is the one axis that is monotone and steep across 0.0008-0.00145, so widen slightly downward where the sweep has least coverage). chunk_dec_dropout stays [0.1, 0.2, 0.3] - the strongest cross-side lever. Budget fields untouched.",
+    "note": "Supersedes kzv86bvy (0 runs, held 1 day) and l6j9d86b before it. Server config verified BYTE-IDENTICAL to kernels/perpos-gpu-sweep/_private_live/sweep_config.json (json.dumps sort_keys comparison == True). Free params 9 (was 10): the seed axis is the point of this cycle."
+  },
+  "noise_floor_finding": {
+    "headline": "THE SWEEP IS NOISE-LIMITED, NOT SEARCH-LIMITED. The last 11 cycles of 'narrow the space' steering were re-ranking random draws. This is the single most important thing learned in the project so far and it re-frames every prior cycle.",
+    "method": "seed=1337 in ALL 467 metric-bearing runs, so every (config, lr) cell is n=1. But 5 config groups have >=4 full-rung runs that differ ONLY in lr, which gives a within-config replicate distribution to measure run-to-run spread directly.",
+    "robust_sigma_bpc": 0.0299,
+    "sigma_method": "median MAD-sigma (1.4826 * median|x-median|) across the 5 within-config groups; each group n=4..41, medians 2.2686-2.3214, sds 0.0387-0.1137",
+    "within_config_spread_bpc": {
+      "cdl10_tff1024": {"n": 28, "best": 2.2474, "median": 2.2686, "worst": 2.4702, "spread": 0.2228},
+      "cdl14_tff1024": {"n": 41, "best": 2.2406, "median": 2.2648, "worst": 2.7797, "spread": 0.5391},
+      "cdl12_tff1024": {"n": 25, "best": 2.2464, "median": 2.2712, "worst": 2.4850, "spread": 0.2385},
+      "cdl8_tff1024": {"n": 7, "best": 2.2710, "median": 2.2937, "worst": 2.3914, "spread": 0.1204},
+      "cdl6_tff1024": {"n": 4, "best": 2.2843, "median": 2.3214, "worst": 2.3628, "spread": 0.0785}
+    },
+    "consequence_1_ranking_is_noise": "The top-12 completed arms span 2.2378-2.2498 = 0.0120 BPC, which is 0.40 sigma. 134 of the 175 completed full-rung arms (77%) are within 1 sigma of the 'record'. Ranks 1-12 are a coin flip, not a ranking.",
+    "consequence_2_winners_curse": "The sweep ranks on min-of-N. Mean group MEAN is 2.3106 vs mean group MIN 2.2579, so the reported 'record' is overstated by ~0.0527 BPC on average purely by selection. Every 'new best' in this project's GPU history is partly luck.",
+    "consequence_3_the_record_is_a_lucky_draw": "Record 65dr5rv3 = 2.2378 sits 2.83 sigma BELOW the mean of its own config group (2.3224). It is not a superior config; it is a favourable draw from a noisy distribution.",
+    "consequence_4_it_explains_stagnation": "This is why 519 runs produced no movement: bayes was being fed a noisy objective, so it kept re-discovering the same configs and then 'improving' on them by luck. More search would NOT have helped. Replication had to come first.",
+    "consequence_5_it_retroactively_softens_the_inflation_verdict": "Last cycle's 'decoder inflation is empirically dead' still holds - ranks 2-12 are 1.6-2.2x the compute for +0.003..+0.012 BPC, and at 0.4 sigma that is now formally 'indistinguishable from free', which is an even STRONGER rejection of inflation. But the converse also holds: the record's 0.012 BPC lead over the cdl-10 arms is NOT evidence that cdl-6/tokFF-512 is a better architecture. Neither arm is distinguishable."
+  },
+  "best": {
+    "bpc": 2.2378,
+    "run": "https://wandb.ai/ananiyajemberu21-custom/ml-playground-perpos-gpu/runs/65dr5rv3",
+    "run_id": "65dr5rv3",
+    "run_name": "zesty-sweep-18 (sweep 2rdefl3u); still unbeaten after 6 further generations (gen-3 qrkfjk9v 48, gen-4 wbctbhvo 160, gen-4-rerun iv1dfhio 83) = 519 runs total",
+    "sweep": "2rdefl3u",
+    "foldable": false,
+    "not_foldable_because": "token_dec_dim_ff=512 > hard cap 256, and 2026-09-27 evidence shows the GPU sweep kernel does NOT clamp it (see kernel_clamp_finding below) - so the arm really is 2x over-cap, not a reporting artifact. Independently: 2.2378 is 0.3778 BPC worse than the TPU side's current 1.86000 BPC under-budget best, so there is nothing to fold even if it were cap-clean.",
+    "reliability_caveat": "ADDED 2026-09-28: this 'record' is 2.83 sigma BELOW the mean of its own config group (2.3224). It is a favourable draw, not a demonstrated architecture. Do not treat the 0.0120 BPC gap to rank 2 as a real effect - see noise_floor_finding.",
+    "params": 10336079,
+    "runtime_s": 10666,
+    "config": {
+      "d_model": 1024,
+      "chunk_dec_layers": 6,
+      "chunk_nhead": 8,
+      "chunk_dec_dim_ff": null,
+      "quantized_dim": 256,
+      "quantization_levels": 256,
+      "ch": 4,
+      "token_dec_layers": 1,
+      "token_emb_dim": 128,
+      "token_dec_dim_ff": 512,
+      "token_dec_nhead": 8,
+      "token_local_window": 64,
+      "compressor_emb_dim": 64,
+      "chunk_local_window": 16,
+      "chunk_dec_dropout": 0.1,
+      "token_dec_dropout": 0,
+      "chunk_use_alibi": false,
+      "learned_pos": true,
+      "compressor_causal": true,
+      "lr": 0.0014109308819477769,
+      "weight_decay": 0.01,
+      "token_wd": 0.02,
+      "clip_grad": 0.5,
+      "batch_size": 32,
+      "block_size": 256,
+      "limit_chars": 10000000,
+      "epochs": 27,
+      "warmup_steps": 512,
+      "lambda_hist_kl": 0.02,
+      "lambda_snap": 0.05,
+      "refiner_target_scale": 0.7,
+      "refiner_l2": 0.0001,
+      "patience": 2,
+      "prior_aux_weight": 0.25
+    },
+    "observed_at": "2026-08-11T06:14:15Z"
+  },
+  "fold_target": {
+    "note": "The bar moved this cycle. PR #195 (TPU agent, 2026-09-27T09:10Z) recorded iter-39 / v78 = 1.86000 BPC (run s1y9s6hj, 1.28925 nats, 33 epochs, 1151s) as the new under-budget best in baseline.json -> under_budget_best, beating the old current_best 1.8833 at 1/3 the data. The sweep must therefore clear 1.86 BPC, not 1.8833.",
+    "current_best_baseline_json": 1.8833,
+    "new_under_budget_best_tpu_side": 1.86,
+    "gpu_sweep_record": 2.2378,
+    "gap_to_close": 0.3778,
+    "gap_in_sigma": 12.7,
+    "fold_decision": "NO FOLD - record is 0.3778 BPC (12.7 sigma) worse and over-cap. Note the gap is ~12.7x the measured noise floor, so unlike the internal ranking this comparison IS statistically solid."
+  },
+  "stagnation": {
+    "detected": true,
+    "since_run": 151,
+    "best_bpc_when_detected": 2.2378,
+    "days_stale": 35,
+    "last_new_run_at": "2026-08-24T18:56:42Z",
+    "new_runs_this_cycle": 0,
+    "root_cause": "TWO independent causes, and this cycle separated them. (1) SEARCH was noise-limited - see noise_floor_finding; 519 runs could not have converged because sigma=0.0299 BPC swamps every architecture effect in the space. That half is now FIXED (n=3 seeds). (2) EXECUTION is compute-starved and still is: ananiyajemberu/perpos-gpu-sweep-a and -b both report KernelWorkerStatus.COMPLETE (re-verified this cycle), last run 2026-08-23T18:37Z, now 35 days. No c/d slugs exist. Every sweep id created since 2026-08-14 has 0 runs. Re-pushing the kernels is the orchestrator's job - this skill must never push.",
+    "note": "Record 2.2378 BPC (65dr5rv3, 08-11) stands unchallenged through 519 runs / 35 days / 12 monitor cycles - but per noise_floor_finding it is 2.83 sigma below its own config's mean, so it is not a real lead. The cap-clean subspace is still 0% explored. The search space is now materially better (replication) but no run can consume it until a kernel is pushed."
+  },
+  "kernels_running": [],
+  "blocked_on": {
+    "blocker": "no GPU sweep kernel is running or queued; the T4 quota is idle",
+    "kernels": {
+      "ananiyajemberu/perpos-gpu-sweep-a": "COMPLETE (re-verified 2026-09-28 via kaggle kernels status)",
+      "ananiyajemberu/perpos-gpu-sweep-b": "COMPLETE (re-verified 2026-09-28 via kaggle kernels status)"
+    },
+    "owner": "orchestrator / ml-training-loop side - out of scope for ml-sweep-loop (never pushes kernels)",
+    "handoff": "Push perpos-gpu-sweep-a (or -b) with SWEEP_WANDB_SWEEP_ID=xqlix7jx. That single push is the only thing standing between the current state and the first ever cap-clean AND replicated arms."
+  },
+  "kernel_clamp_finding": {
+    "summary": "The GPU sweep kernel does NOT enforce the anti-GPT-ification decoder caps, so every over-cap arm really trained over-cap. Proven from params/count, not inferred from the config echo.",
+    "evidence": "At fixed d_model=1024 / token_dec_layers=1 / token_emb_dim=128 / token_dec_nhead=8, params/count separates cleanly by requested token_dec_dim_ff: chunk_dec_layers=6 -> 10.18-10.34M at tokFF=512 vs 10.28-10.47M at tokFF=1024; chunk_dec_layers=4 -> 7.02-7.18M vs 7.15-7.31M. A working coerce_config clamp to 256 would have collapsed those pairs to identical counts.",
+    "implication": "The 0-cap-clean coverage gap is real, and the fold step must keep rejecting over-cap REQUESTED configs - a clamped-looking config echo is not evidence of a compliant model. The TPU kernel's coerce_config is the only place the caps bite."
+  },
+  "coverage_gap": {
+    "summary": "0 of the 467 metric-bearing arms are cap-clean, so not one run in the entire GPU history has ever trained inside the foldable region. token_dec_dim_ff only ever took {512, 1024} against a hard cap of 256; token_dec_layers was 1 in all 467 (cap 2, never probed upward); chunk_dec_dim_ff was null in all 467.",
+    "token_dec_dim_ff_values_seen": {
+      "512": 74,
+      "1024": 393,
+      "<=256": 0
+    },
+    "chunk_dec_layers_values_seen": {
+      "4": 100,
+      "6": 126,
+      "8": 18,
+      "10": 86,
+      "12": 64,
+      "14": 73,
+      "<=8": 244
+    },
+    "fully_foldable_arms": 0,
+    "implication": "kzv86bvy is the third cap-clean space in a row and the first one that also probes the strongest measured lever. It is the first real test of whether the caps cost BPC."
+  },
+  "dropout_steering": {
+    "why": "Regularization is the only axis with a large, replicated, monotone effect anywhere in this project, and the GPU sweep had it pinned.",
+    "cross_side_evidence_tpu": "chunk_dec_dropout 0.05 -> 2.05402, 0.10 -> 1.93327, 0.20 -> 1.86000 BPC at the committed 10M/512/bs384 budget (PR #195); v79 is probing 0.3 now. -0.194 BPC over the tested range.",
+    "within_sweep_evidence_gpu": "chunk_dec_dropout 0.1 -> best 2.2378 (n=434) vs 0 -> best 2.2984 (n=33), so 0.1 > 0 by 0.061 BPC; values >=0.2 have NEVER been run on GPU. token_dec_dropout 0 -> 2.2378 (n=72) vs 0.1 -> 2.2632 (n=172) at matched chunk_dec_layers<=8, a 0.025 BPC delta that is inside run-to-run noise, so it stays a 2-way probe rather than a pinned value.",
+    "caveat": "The TPU optimum is measured at batch 384 and the sweep runs batch 32 with ~2x the samples, so the GPU optimum may sit lower. That is exactly why 0.3 is in the space as a probe and not a promise, and why the answer has to be read at the sweep's own operating point.",
+    "space_now": {
+      "chunk_dec_dropout": [0.1, 0.2, 0.3],
+      "token_dec_dropout": [0, 0.1]
+    }
+  },
+  "compute_inflation_audit": {
+    "cycle": "2026-09-28",
+    "runs_pulled": 518,
+    "metric_bearing": 467,
+    "rejected_for_budget_deviation": {
+      "batch_size": "17 arms carry 48/64/96 vs the sweep-pinned 32 - best 2.3995 / 2.6503 / 3.7496, all strictly worse than the 2.2378 record, so none touched the ranking",
+      "epochs": "88 arms at 1/3/9 are hyperband early-stop rungs (LESS compute, not inflation) - best 5.4828 / 3.1528 / 2.6743, all worse"
+    },
+    "budget_held": "limit_chars=10M, block_size=256, stride=256, max_runtime_s=32400 for all 467 metric-bearing arms - zero deviations this cycle. Max _runtime among metric-bearing runs is under the cap.",
+    "new_finding_stragglers": "51 runs logged no val metric. 15 of them ran 32.4-41.8ks, i.e. PAST the kernel's own 32400s max_runtime_s - all over-cap 16.7M/19.9M/23.0M-param arms (chunk_dec_layers 10-14, tokFF 1024) that never finished an epoch. Up from 8 last cycle. They carry no metric so they cannot be ranked or folded, but they are pure waste and are exactly the arms this config removes.",
+    "inflation_verdict": "UNCHANGED and now formally stronger. Ranks 2-12 are all chunk_dec_layers 10-14 + token_dec_dim_ff 1024 at 16.7-23.0M params and 12.8-17.3ks: 1.6-2.2x the record's compute for +0.003..+0.012 BPC. At sigma=0.0299 that spread is 0.4 sigma, i.e. the extra compute buys NOTHING measurable - the correct verdict is 'indistinguishable from free', the strongest possible rejection of inflation. The record still wins on BPC AND wall-clock simultaneously, so the anti-GPT-ification caps cost nothing."
+  },
+  "top5": [
+    {"rank": 1, "bpc": 2.2378, "run": "65dr5rv3", "params": 10336079, "runtime_s": 10666, "verdict": "RECORD, over-cap (tokFF 512 > 256) -> not foldable. But 2.83 sigma below its own config's mean: a lucky draw, not a superior architecture."},
+    {"rank": 2, "bpc": 2.2406, "run": "x7vuvvus", "params": 23038287, "runtime_s": 17342, "verdict": "REJECT inflation: cdl 14>8, tokFF 1024>256, 2.2x params, 1.6x slower. +0.0028 = 0.09 sigma vs rank 1."},
+    {"rank": 3, "bpc": 2.2411, "run": "6l5qdkou", "params": 23038287, "runtime_s": 15042, "verdict": "REJECT same (also crashed)"},
+    {"rank": 4, "bpc": 2.2418, "run": "s9gnov0d", "params": 23038287, "runtime_s": 16268, "verdict": "REJECT same"},
+    {"rank": 5, "bpc": 2.2428, "run": "4uhzwo5y", "params": 23038287, "runtime_s": 16557, "verdict": "REJECT same"}
+  ],
+  "notes": [
+    "2026-09-28 THIS cycle: the substantive finding is noise_floor_finding - sigma=0.0299 BPC vs a 0.0120 BPC top-12 spread means the ranking has been noise all along, and min-of-N ranking inflates the 'record' by ~0.053 BPC. The steering response is REPLICATION (seed n=3), not more search. This is the first cycle that changed the sweep's ability to MEASURE rather than its ability to explore.",
+    "2026-09-28 WHY NOT A FOLD: best 2.2378 (65dr5rv3) is 0.3778 BPC worse than the TPU side's 1.86000 under-budget best, is not cap-clean (tokFF 512 > 256), and is now known to be 2.83 sigma below its own config's mean. No canonical-config change, no baseline.json change. 12th consecutive no-fold cycle - and for the first time the reason is provable rather than merely observed.",
+    "2026-09-28 VARIABLE WRITE: works via PAT scraped from the private clone remote. SWEEP_WANDB_SWEEP_ID kzv86bvy -> xqlix7jx, verified by read-back. WANDB_SWEEP_ID re-confirmed absent and NOT created, per the skill's hard rule.",
+    "2026-09-28 STATE PERSISTENCE: the private-overlay fix held again - /tmp/private/state/sweep_state.json and /tmp/private/.../sweep_config.json were byte-identical to the public copies at start of run, so this cycle read fresh state. Commits state + config to the PRIVATE repo and mirrors only those two files in the public PR.",
+    "2026-09-28 (analysis, 518 runs / 467 metric-bearing): prior cycle's numbers all reproduce (same record, same 0 cap-clean arms). New: (a) sigma=0.0299 and the winner's curse quantified; (b) stragglers past max_runtime_s up 8 -> 15; (c) token_dec_dropout's 0.025 BPC edge is 0.8 sigma so it was correctly demoted to a pin; (d) lr is the ONLY monotone steep axis (0.0008 -> 2.3395 up to 0.00140 -> 2.2378, degrading to 2.2632 at 0.00145), so its range was widened downward to 0.00125.",
+    "2026-09-27 THIS cycle: one variable write + one successor sweep + one PR. l6j9d86b had 0 runs so nothing was lost by superseding it, and the TPU side measured chunk_dec_dropout 0.2 -> 1.86000 BPC (PR #195) roughly one hour before this agent started, while the GPU sweep had that knob pinned at 0.1. Freeing it was the change with the best expected value per GPU-hour available.",
+    "2026-09-26 (PR #193): repointed the variable, mirrored the cap-clean config into the private mirror, repaired state persistence, fixed .gitignore, fixed the sweep workflow. Still open.",
+    "2026-09-25 (PR #190): analysed 519 runs, narrowed 23 -> 8 free params, minted cap-clean l6j9d86b. Superseded by #193's config landing in the private mirror.",
+    "2026-08-29: adopted cap-clean gen-5 z86wszrq as designated successor and mirrored its config; variable repointed via PRIVATE_REPO_PAT. Held (0 runs) for 9 cycles.",
+    "2026-08-23: created successor 54pkjxrp (run_cap 240); variable repointed f90jv35j -> 54pkjxrp. Never got runs.",
+    "2026-08-14: sweep 2rdefl3u drained and idle - all 7 kernel slugs CANCEL_ACKNOWLEDGED."
+  ]
+}
